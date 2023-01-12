@@ -1,0 +1,9 @@
+.hp-big {
+    font: "Inter";
+    font-size: 48px;
+    font-weight: 800;
+}
+
+.container-top {
+    background-image: linear-gradient(to bottom right,#0d52ff,#970fd4,#f849a0);
+}
