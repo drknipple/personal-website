@@ -1,9 +1,9 @@
 * {
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Poppins', sans-serif;\
 }
 
 .button {
-  background-color: #486aaa;
+  background-color: #113855;
   border: none;
   color: white;
   padding: 15px 32px;
@@ -33,21 +33,25 @@ img {
 }
 
 .header {
-    color: darkblue;
+    color: 113855;
     display: flex;
-    justify-content: space-around;
-    background-color: rgb(204, 225, 244);
+    justify-content: space-between;
+    align-items: center;
     flex-wrap: wrap;
     border-top-left-radius: 13px;
     border-top-right-radius: 13px;
+    border-bottom: .5px solid #e7e7e7;
 }
 
 .logo {
-    justify-content: flex-start;
+    margin: 10px;
+    padding-left: 20px;
 }
 
 .hours {
     font-size: small;
+    text-align: center;
+    padding-right: 20px;
 }
 
 .menu {
@@ -57,12 +61,11 @@ img {
 }
 
 .menu-item {
-    height: auto;
     max-width: 300px;
     margin: 20px;
     color: black;
     border-radius: 9px;
-    flex: 1;
+    flex: 1 1 auto;
     padding: 5px;
 }
 

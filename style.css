@@ -1,9 +1,150 @@
-.hp-big {
-    font: "Inter";
-    font-size: 48px;
-    font-weight: 800;
+body {
+    max-width: 1440px;
+	margin: 0 auto !important; 
+	float: none !important; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: conic-gradient(from 136.63deg at 32.5% -1.8%, #DDFFF9 -30.09deg, #F8F8F8 57.93deg, #E5D1FF 171.05deg, #FFF8BC 282.36deg, #DDFFF9 329.91deg, #F8F8F8 417.93deg);
+}
+
+p {
+    display: flex;
 }
 
 .container-top {
-    background-image: linear-gradient(to bottom right,#0d52ff,#970fd4,#f849a0);
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap:  5px;
+    padding: 40px;
+    align-items: center;
+}
+
+.container-mid {
+    display: flex;
+    flex-wrap: wrap;
+    gap:  5px;
+    padding: 40px;
+    align-items: center;
+}
+
+.quote {
+    flex: 1;
+    font-family: 'Alfa Slab One', cursive;
+    line-height: 1.25;
+    margin-left: 100px;
+}
+
+.hp-big {
+    font-size: 48px;
+    font-weight: 400;
+    margin-bottom: -5px;
+}
+
+.hp-name {
+    font-size: 60px;
+    font-weight: 400;
+    margin-top: -10px;
+}
+
+.pic {
+    display: flex;
+}
+
+img {
+    max-width: 700px;
+    height: auto;
+}
+
+
+.container-card {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap:  50px;
+    align-items: center;
+}
+
+.avi {
+    border: solid;
+    border-color: rgb(7, 14, 57);
+    border-radius: 50%;
+    border-width: 2px;
+    background-color: white;
+    opacity: 75%;
+    width: 72px;
+    height: 72px;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 233px;
+    height: 230px;
+    background: #43AB92;    
+    border-radius: 12px;
+    list-style-type: none;
+    padding: 20px;
+    color: white;
+    align-items: ;
+    gap: 20px;
+    box-shadow: 2px 4px 12px rgba(0,0,0,.08);
+    font-family: 'Inter';
+}
+
+.header {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    font-style: normal;
+    font-weight: 700;
+    font-size: 32px;
+    line-height: 36px;
+}
+
+.title {
+    margin-right: 20px;
+}
+
+    
+.bio {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 25px;
+}
+
+a {
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.button {
+    background-color: white;
+    border: none;
+    color: #43AB92;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 5px;
+  }
+
+.work-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    color: white;
+    background-image: url(./images/work_card_blue.png);
+    width: 370px;
+    height: 490px;    
+    border-radius: 12px;
+font-family: 'Inter';
+}
+
+.bottom {
+    margin: 20px;
 }
