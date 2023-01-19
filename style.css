@@ -92,6 +92,14 @@ img {
     gap: 20px;
     box-shadow: 2px 4px 12px rgba(0,0,0,.08);
     font-family: 'Inter';
+    transition: transform .2s;
+}
+
+.card:hover{ 
+    box-shadow: 1px 8px 20px rgba(128, 128, 128, 0.318);
+  -ms-transform: scale(1.05); /* IE 9 */
+  -webkit-transform: scale(1.05); /* Safari 3-8 */
+  transform: scale(1.05); 
 }
 
 .header {
