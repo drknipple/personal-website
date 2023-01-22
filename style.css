@@ -17,7 +17,6 @@ p {
     justify-content: center;
     flex-wrap: wrap;
     gap:  5px;
-    padding: 40px;
     align-items: center;
 }
 
@@ -33,7 +32,7 @@ p {
     flex: 1;
     font-family: 'Alfa Slab One', cursive;
     line-height: 1.25;
-    margin-left: 100px;
+    max-width: 50%;
 }
 
 .hp-big {
@@ -50,10 +49,11 @@ p {
 
 .pic {
     display: flex;
+    max-width: 50%;
 }
 
 img {
-    max-width: 700px;
+    width: 100%;
     height: auto;
 }
 
@@ -62,7 +62,7 @@ img {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    gap:  50px;
+    gap:  16px;
     align-items: center;
 }
 
@@ -87,8 +87,7 @@ img {
     border-radius: 12px;
     list-style-type: none;
     padding: 20px;
-    color: white;
-    align-items: ;
+    color: rgb(255, 255, 255);
     gap: 20px;
     box-shadow: 2px 4px 12px rgba(0,0,0,.08);
     font-family: 'Inter';

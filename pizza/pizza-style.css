@@ -1,5 +1,5 @@
 * {
-    font-family: 'Poppins', sans-serif;\
+    font-family: 'Poppins', sans-serif;
 }
 
 .button {
@@ -54,6 +54,73 @@ img {
     padding-right: 20px;
 }
 
+.container-top {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.recipe-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 50px;
+}
+
+.formula {
+    display: flex;
+    max-width: 50%;
+    height: fit-content;
+}
+
+.styled-table {
+    border-collapse: collapse;
+    font-family: sans-serif;
+    min-width: 300px;
+    /* box-shadow: 0 0 20px rgba(0, 0, 0, 0.15); */
+}
+
+.styled-table thead tr {
+    background-color: #009879;
+    color: #ffffff;
+    text-align: left;
+}
+
+.styled-table th,
+.styled-table td {
+    padding: 12px 15px;
+}
+
+.styled-table tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+.styled-table tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+}
+
+.styled-table tbody tr:last-of-type {
+    border-bottom: 2px solid #009879;
+}
+
+.instructions {
+    display: flex;
+    max-width: 50%;
+}
+
+.pic {
+    display: flex;
+    max-width: 50%;
+    align-content: flex-end;
+}
+
+.product-info {
+    display: flex;
+    max-width: 50%;
+}
+
 .menu {
     display: flex;
     flex-wrap: wrap;
@@ -73,3 +140,4 @@ img {
     width: 100%;
     text-align: center;
 }
+
