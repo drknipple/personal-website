@@ -147,12 +147,24 @@ a {
     margin-bottom: 50px;
 }
 
-.work-card {
+.work-card-1 {
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
     color: white;
     background-image: url(./images/work_card_blue.png);
+    width: 370px;
+    height: 490px;    
+    border-radius: 12px;
+font-family: 'Inter';
+}
+
+.work-card-2 {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    color: white;
+    background-image: url(./images/work_card_post.png);
     width: 370px;
     height: 490px;    
     border-radius: 12px;
