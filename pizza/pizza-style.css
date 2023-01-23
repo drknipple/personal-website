@@ -26,7 +26,7 @@ a:hover, a:active {
 }
 
 img {
-    max-width: 300px;
+    max-width: 370px;
     height: auto;
     border-radius: 9px;
 }
@@ -128,7 +128,7 @@ img {
 }
 
 .menu-item {
-    max-width: 300px;
+    max-width: 390px;
     margin: 20px;
     color: black;
     border-radius: 9px;
