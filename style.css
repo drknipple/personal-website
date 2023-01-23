@@ -32,7 +32,6 @@ p {
     flex: 1;
     font-family: 'Alfa Slab One', cursive;
     line-height: 1.25;
-    max-width: 50%;
 }
 
 .hp-big {
@@ -49,7 +48,6 @@ p {
 
 .pic {
     display: flex;
-    max-width: 50%;
 }
 
 img {
