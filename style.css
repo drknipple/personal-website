@@ -140,6 +140,16 @@ a {
     border-radius: 5px;
   }
 
+  .container-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    gap:  15px;
+    padding: 40px;
+    align-items: center;
+    margin-top: 120px;
+    margin-bottom: 50px;
+}
+
 .work-card {
     display: flex;
     flex-direction: column;
