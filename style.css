@@ -24,7 +24,6 @@ p {
     display: flex;
     flex-wrap: wrap;
     gap:  5px;
-    padding: 40px;
     align-items: center;
 }
 
@@ -32,6 +31,7 @@ p {
     flex: 1;
     font-family: 'Alfa Slab One', cursive;
     line-height: 1.25;
+    padding: 20px;
 }
 
 .hp-big {
@@ -142,7 +142,6 @@ a {
     display: flex;
     flex-wrap: wrap;
     gap:  15px;
-    padding: 40px;
     align-items: center;
     margin-top: 120px;
     margin-bottom: 50px;
