@@ -318,11 +318,10 @@ body {
 
 .pizza-detail {
     display: flex;
-    flex-wrap: wrap;
-    gap: 40px;
-    max-width: 1100px;
+    flex-direction: column;
+    max-width: 800px;
     margin: 40px auto;
-    align-items: flex-start;
+    padding: 0 20px;
 }
 
 .pizza-photo-section {
@@ -344,9 +343,7 @@ body {
 }
 
 .pizza-info-section {
-    flex: 2 1 400px;
-    min-width: 320px;
-    max-width: 600px;
+    width: 100%;
     display: flex;
     flex-direction: column;
     gap: 24px;
@@ -363,6 +360,7 @@ body {
     font-size: 1.1em;
     color: #333;
     margin: 0 0 18px 0;
+    line-height: 1.6;
 }
 
 .ingredients-card, .instructions-card {
@@ -405,20 +403,137 @@ body {
 }
 
 .ingredients-card {
-    background: none;
-    box-shadow: none;
-    border-radius: 0;
-    padding: 20px 0 0 0;
-    width: 100%;
-    max-width: 400px;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    margin: 20px 0;
 }
 
-.ingredients-card .styled-table {
-    width: 100%;
-    max-width: 400px;
+.ingredients-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.ingredient-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    background-color: #f5f7fa;
+}
+
+.ingredient-name {
+    font-weight: 500;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+}
+
+.ingredient-percent {
+    font-weight: 500;
+    color: #113855;
+    font-size: 0.95em;
+    margin: 0 20px;
+    min-width: 60px;
+    text-align: right;
+}
+
+.ingredient-amount {
+    font-weight: 500;
+    color: #113855;
+    font-size: 0.95em;
+    min-width: 60px;
+    text-align: right;
+}
+
+.ingredient-name i {
+    width: 20px;
+    margin-right: 12px;
+    color: #113855;
+    opacity: 0.8;
+}
+
+.coming-soon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2em;
+    color: #113855;
+    margin: 20px 0;
+}
+
+.coming-soon i {
+    margin-right: 10px;
+}
+
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+    .pizza-detail {
+        padding: 16px;
+    }
+
+    .pizza-photo-section {
+        margin-bottom: 24px;
+    }
+
+    .pizza-photo {
+        max-height: 250px;
+        width: 100%;
+        object-fit: cover;
+        border-radius: 12px;
+    }
+
+    .pizza-info-section {
+        padding: 0;
+    }
+
+    .pizza-title {
+        font-size: 1.8em;
+        margin-bottom: 12px;
+    }
+
+    .pizza-desc {
+        font-size: 1em;
+        line-height: 1.6;
+        margin-bottom: 24px;
+    }
+
+    .ingredients-list {
+        grid-template-columns: 1fr;
+    }
+
+    .instructions-card {
+        padding: 16px;
+    }
+
+    .instructions-list {
+        padding-left: 20px;
+    }
+
+    .instructions-list li {
+        margin-bottom: 12px;
+        line-height: 1.5;
+    }
+}
+
+/* Tablet Optimizations */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .pizza-detail {
+        grid-template-columns: 1fr;
+        gap: 32px;
+    }
+
+    .pizza-photo {
+        max-height: 400px;
+    }
 }
 

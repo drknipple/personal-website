@@ -6,6 +6,8 @@ body {
     flex-direction: column;
     justify-content: center;
     background: conic-gradient(from 136.63deg at 32.5% -1.8%, #DDFFF9 -30.09deg, #F8F8F8 57.93deg, #E5D1FF 171.05deg, #FFF8BC 282.36deg, #DDFFF9 329.91deg, #F8F8F8 417.93deg);
+    padding-top: 70px;
+    min-height: 100vh;
 }
 
 p {
@@ -16,16 +18,19 @@ p {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    gap:  5px;
+    gap: 5px;
     align-items: center;
-    margin-bottom: 150px;
+    margin-bottom: 80px;
+    padding: 40px 20px;
 }
 
 .container-mid {
     display: flex;
     flex-wrap: wrap;
-    gap:  5px;
+    gap: 5px;
     align-items: center;
+    margin-bottom: 80px;
+    padding: 0 20px;
 }
 
 .quote {
@@ -64,9 +69,10 @@ img {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    gap:  16px;
+    gap: 16px;
     align-items: center;
-    margin-bottom: 150px;
+    margin-bottom: 80px;
+    padding: 0 20px;
 }
 
 .avi {
@@ -143,40 +149,151 @@ a {
     border-radius: 5px;
   }
 
-  .container-bottom {
+.container-bottom {
     display: flex;
     flex-wrap: wrap;
-    gap:  15px;
+    gap: 15px;
     align-items: center;
-    margin-top: 120px;
-    margin-bottom: 50px;
+    margin-bottom: 80px;
+    padding: 0 20px;
+}
+
+.work-card-1, .work-card-2 {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    color: white;
+    width: 370px;
+    height: 490px;    
+    border-radius: 12px;
+    font-family: 'Inter';
+    margin-bottom: 40px;
 }
 
 .work-card-1 {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    color: white;
     background-image: url(./images/work_card_blue.png);
-    width: 370px;
-    height: 490px;    
-    border-radius: 12px;
-font-family: 'Inter';
 }
 
 .work-card-2 {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    color: white;
     background-image: url(./images/work_card_post.png);
-    width: 370px;
-    height: 490px;    
-    border-radius: 12px;
-font-family: 'Inter';
 }
 
 .bottom {
     margin: 20px;
     color: white;
+}
+
+/* Navigation Styles */
+.main-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.nav-container {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-logo {
+    font-family: 'Saira Stencil One', cursive;
+    font-size: 1.5rem;
+    color: #113855;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-links a {
+    color: #113855;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1rem;
+    transition: color 0.3s ease;
+}
+
+.nav-links a:hover {
+    color: #0c2a42;
+}
+
+.mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
+.mobile-menu-btn span {
+    display: block;
+    width: 25px;
+    height: 2px;
+    background-color: #113855;
+    margin: 5px 0;
+    transition: all 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    .mobile-menu-btn {
+        display: block;
+    }
+
+    .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        flex-direction: column;
+        padding: 1rem;
+        gap: 1rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-links.active {
+        display: flex;
+    }
+
+    .mobile-menu-btn.active span:nth-child(1) {
+        transform: rotate(45deg) translate(5px, 5px);
+    }
+
+    .mobile-menu-btn.active span:nth-child(2) {
+        opacity: 0;
+    }
+
+    .mobile-menu-btn.active span:nth-child(3) {
+        transform: rotate(-45deg) translate(7px, -6px);
+    }
+
+    .container-top,
+    .container-mid,
+    .container-card,
+    .container-bottom {
+        padding: 0 15px;
+        margin-bottom: 60px;
+    }
+
+    .work-card-1, .work-card-2 {
+        width: 100%;
+        max-width: 370px;
+        margin: 0 auto 30px auto;
+    }
 }
