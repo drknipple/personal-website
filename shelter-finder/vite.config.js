@@ -52,6 +52,7 @@ const httpsConfig = getHttpsConfig()
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  base: process.env.NODE_ENV === 'production' ? '/shelter-finder/' : '/',
   server: {
     host: true, // Listen on all addresses
     port: 5173,
