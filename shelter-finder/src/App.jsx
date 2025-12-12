@@ -205,80 +205,79 @@ function App() {
     <div className="app mobile-first">
       {/* Main content area - Map is primary */}
       <div className="main-content">
-        {viewMode === 'map' && (
-          <div className="map-container-full">
-            <LocationMap
-              locations={locations}
-              selectedLocation={selectedLocation}
-              onLocationSelect={handleLocationSelect}
-              userLocation={userLocation}
-            />
-            
-            {/* Location details bottom sheet */}
-            {selectedLocation && (
-              <div className="location-details-sheet">
-                <div className="sheet-handle"></div>
-                <button
-                  onClick={() => setSelectedLocation(null)}
-                  className="close-button"
-                  aria-label="Close"
-                >
-                  ×
-                </button>
-                <h3>{selectedLocation.name}</h3>
-                <p className="location-type-badge">
-                  {(() => {
-                    const typeInfo = getTypeInfo(selectedLocation.type);
-                    const Icon = typeInfo.icon;
-                    return <><Icon /> {typeInfo.label}</>;
-                  })()}
+        {/* Map is always visible behind sheets */}
+        <div className="map-container-full">
+          <LocationMap
+            locations={locations}
+            selectedLocation={selectedLocation}
+            onLocationSelect={handleLocationSelect}
+            userLocation={userLocation}
+          />
+          
+          {/* Location details bottom sheet */}
+          {selectedLocation && (
+            <div className="location-details-sheet">
+              <div className="sheet-handle"></div>
+              <button
+                onClick={() => setSelectedLocation(null)}
+                className="close-button"
+                aria-label="Close"
+              >
+                ×
+              </button>
+              <h3>{selectedLocation.name}</h3>
+              <p className="location-type-badge">
+                {(() => {
+                  const typeInfo = getTypeInfo(selectedLocation.type);
+                  const Icon = typeInfo.icon;
+                  return <><Icon /> {typeInfo.label}</>;
+                })()}
+              </p>
+              {selectedLocation.address && (
+                <p className="location-info">
+                  <FaMapMarkerAlt /> {selectedLocation.address}
                 </p>
-                {selectedLocation.address && (
-                  <p className="location-info">
-                    <FaMapMarkerAlt /> {selectedLocation.address}
-                  </p>
-                )}
-                {selectedLocation.phone && (
-                  <p className="location-info">
-                    <FaPhone /> <a href={`tel:${selectedLocation.phone}`}>{selectedLocation.phone}</a>
-                  </p>
-                )}
-                {selectedLocation.hours && (
-                  <p className="location-info">
-                    <FaClock /> {selectedLocation.hours}
-                  </p>
-                )}
-                {selectedLocation.notes && (
-                  <p className="location-info">{selectedLocation.notes}</p>
-                )}
-                {userLocation && (
-                  <p className="location-distance">
-                    <FaRuler /> {calculateDistance(
-                      userLocation[0], userLocation[1],
-                      selectedLocation.latitude, selectedLocation.longitude
-                    ).toFixed(1)} km away
-                  </p>
-                )}
-                <div className="location-actions">
+              )}
+              {selectedLocation.phone && (
+                <p className="location-info">
+                  <FaPhone /> <a href={`tel:${selectedLocation.phone}`}>{selectedLocation.phone}</a>
+                </p>
+              )}
+              {selectedLocation.hours && (
+                <p className="location-info">
+                  <FaClock /> {selectedLocation.hours}
+                </p>
+              )}
+              {selectedLocation.notes && (
+                <p className="location-info">{selectedLocation.notes}</p>
+              )}
+              {userLocation && (
+                <p className="location-distance">
+                  <FaRuler /> {calculateDistance(
+                    userLocation[0], userLocation[1],
+                    selectedLocation.latitude, selectedLocation.longitude
+                  ).toFixed(1)} km away
+                </p>
+              )}
+              <div className="location-actions">
+                <button
+                  onClick={() => setShowShareLink(true)}
+                  className="btn-primary"
+                >
+                  <FaShare /> Share
+                </button>
+                {selectedLocation.id && selectedLocation.id !== 'shared' && (
                   <button
-                    onClick={() => setShowShareLink(true)}
-                    className="btn-primary"
+                    onClick={() => handleEditLocation(selectedLocation)}
+                    className="btn-secondary"
                   >
-                    <FaShare /> Share
+                    <FaEdit /> Edit
                   </button>
-                  {selectedLocation.id && selectedLocation.id !== 'shared' && (
-                    <button
-                      onClick={() => handleEditLocation(selectedLocation)}
-                      className="btn-secondary"
-                    >
-                      <FaEdit /> Edit
-                    </button>
-                  )}
-                </div>
+                )}
               </div>
-            )}
-          </div>
-        )}
+            </div>
+          )}
+        </div>
 
         {/* List view as bottom sheet */}
         {showListSheet && (
@@ -287,7 +286,10 @@ function App() {
             <div className="list-sheet-header">
               <h2>Locations ({locations.length})</h2>
               <button
-                onClick={() => setShowListSheet(false)}
+                onClick={() => {
+                  setShowListSheet(false);
+                  setViewMode('map');
+                }}
                 className="close-button"
                 aria-label="Close list"
               >

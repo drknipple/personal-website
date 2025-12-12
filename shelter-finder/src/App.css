@@ -79,6 +79,7 @@
   position: relative;
   overflow: hidden;
   height: 100vh;
+  background-color: transparent;
 }
 
 /* Full-screen map container */
@@ -90,6 +91,7 @@
   left: 0;
   right: 0;
   bottom: 0;
+  z-index: 0;
 }
 
 /* Location details bottom sheet */
@@ -218,6 +220,19 @@
   flex-direction: column;
   z-index: 200;
   animation: slideUp 0.3s ease-out;
+}
+
+.list-sheet.closing {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
 }
 
 .list-sheet-header {
