@@ -99,6 +99,15 @@ function App() {
       return;
     }
 
+    // Check if we're on HTTPS (required for iOS Safari)
+    const isHTTPS = window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    
+    if (!isHTTPS && isIOS) {
+      alert('Geolocation requires HTTPS on iPhone Safari.\n\nPlease access this site using https:// instead of http://\n\nCurrent URL: ' + window.location.href);
+      return;
+    }
+
     // Show loading state
     const button = document.querySelector('.fab-location');
     if (button) {
@@ -120,32 +129,41 @@ function App() {
           button.disabled = false;
         }
         
-        let errorMessage = 'Unable to get your location. ';
+        let errorMessage = 'Unable to get your location.\n\n';
         switch(error.code) {
           case error.PERMISSION_DENIED:
-            errorMessage += 'Please allow location access in your browser settings. On iPhone: Settings → Safari → Location Services → Allow.';
+            if (isIOS) {
+              errorMessage += 'Location access was denied.\n\n';
+              errorMessage += 'To fix this on iPhone:\n';
+              errorMessage += '1. Go to Settings → Safari → Location Services\n';
+              errorMessage += '2. Make sure Location Services is ON\n';
+              errorMessage += '3. Make sure "Ask" or "Allow" is selected\n';
+              errorMessage += '4. Return to Safari and try again\n\n';
+              if (!isHTTPS) {
+                errorMessage += '⚠️ IMPORTANT: This site must be accessed over HTTPS for geolocation to work on iPhone.\n';
+                errorMessage += 'Current URL: ' + window.location.href + '\n';
+                errorMessage += 'Try: ' + window.location.href.replace('http://', 'https://');
+              }
+            } else {
+              errorMessage += 'Location access was denied. Please allow location access in your browser settings.';
+            }
             break;
           case error.POSITION_UNAVAILABLE:
-            errorMessage += 'Location information is unavailable.';
+            errorMessage += 'Location information is unavailable. Your device may not be able to determine your location.';
             break;
           case error.TIMEOUT:
             errorMessage += 'Location request timed out. Please try again.';
             break;
           default:
-            errorMessage += 'An unknown error occurred.';
+            errorMessage += 'An unknown error occurred: ' + error.message;
             break;
-        }
-        
-        // For iOS Safari over HTTP, provide helpful message
-        if (window.location.protocol === 'http:' && !window.location.hostname.includes('localhost')) {
-          errorMessage += '\n\nNote: On iPhone, geolocation requires HTTPS. For local testing, Safari may block location access over HTTP.';
         }
         
         alert(errorMessage);
       },
       {
         enableHighAccuracy: true,
-        timeout: 15000,
+        timeout: 20000,
         maximumAge: 0
       }
     );
