@@ -108,65 +108,90 @@ function App() {
       return;
     }
 
-    // Show loading state
-    const button = document.querySelector('.fab-location');
-    if (button) {
-      button.style.opacity = '0.6';
-      button.disabled = true;
+    // Check permissions API if available (modern browsers)
+    if (navigator.permissions && navigator.permissions.query) {
+      navigator.permissions.query({ name: 'geolocation' }).then((result) => {
+        if (result.state === 'denied') {
+          if (isIOS) {
+            alert('Location access is currently denied.\n\nTo reset permissions on iPhone Safari:\n\n1. Tap the "aA" icon in the address bar\n2. Tap "Website Settings"\n3. Tap "Location" and select "Ask" or "Allow"\n4. Close and reopen this page\n5. Try the location button again');
+          } else {
+            alert('Location access is denied. Please allow location access in your browser settings.');
+          }
+          return;
+        }
+        // Permission is granted or prompt, proceed with geolocation
+        requestLocation();
+      }).catch(() => {
+        // Permissions API not supported, proceed anyway
+        requestLocation();
+      });
+    } else {
+      // Permissions API not available, proceed with geolocation
+      requestLocation();
     }
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setUserLocation([position.coords.latitude, position.coords.longitude]);
-        if (button) {
-          button.style.opacity = '1';
-          button.disabled = false;
-        }
-      },
-      (error) => {
-        if (button) {
-          button.style.opacity = '1';
-          button.disabled = false;
-        }
-        
-        let errorMessage = 'Unable to get your location.\n\n';
-        switch(error.code) {
-          case error.PERMISSION_DENIED:
-            if (isIOS) {
-              errorMessage += 'Location access was denied.\n\n';
-              errorMessage += 'To fix this on iPhone:\n';
-              errorMessage += '1. Go to Settings → Safari → Location Services\n';
-              errorMessage += '2. Make sure Location Services is ON\n';
-              errorMessage += '3. Make sure "Ask" or "Allow" is selected\n';
-              errorMessage += '4. Return to Safari and try again\n\n';
-              if (!isHTTPS) {
-                errorMessage += '⚠️ IMPORTANT: This site must be accessed over HTTPS for geolocation to work on iPhone.\n';
-                errorMessage += 'Current URL: ' + window.location.href + '\n';
-                errorMessage += 'Try: ' + window.location.href.replace('http://', 'https://');
-              }
-            } else {
-              errorMessage += 'Location access was denied. Please allow location access in your browser settings.';
-            }
-            break;
-          case error.POSITION_UNAVAILABLE:
-            errorMessage += 'Location information is unavailable. Your device may not be able to determine your location.';
-            break;
-          case error.TIMEOUT:
-            errorMessage += 'Location request timed out. Please try again.';
-            break;
-          default:
-            errorMessage += 'An unknown error occurred: ' + error.message;
-            break;
-        }
-        
-        alert(errorMessage);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 20000,
-        maximumAge: 0
+    function requestLocation() {
+      // Show loading state
+      const button = document.querySelector('.fab-location');
+      if (button) {
+        button.style.opacity = '0.6';
+        button.disabled = true;
       }
-    );
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation([position.coords.latitude, position.coords.longitude]);
+          if (button) {
+            button.style.opacity = '1';
+            button.disabled = false;
+          }
+        },
+        (error) => {
+          if (button) {
+            button.style.opacity = '1';
+            button.disabled = false;
+          }
+          
+          let errorMessage = 'Unable to get your location.\n\n';
+          switch(error.code) {
+            case error.PERMISSION_DENIED:
+              if (isIOS) {
+                errorMessage += 'Location access was denied.\n\n';
+                errorMessage += 'To reset permissions on iPhone Safari:\n';
+                errorMessage += '1. Tap the "aA" icon in the Safari address bar\n';
+                errorMessage += '2. Tap "Website Settings"\n';
+                errorMessage += '3. Tap "Location" and change to "Ask" or "Allow"\n';
+                errorMessage += '4. Close this tab and open a new one\n';
+                errorMessage += '5. Try the location button again\n\n';
+                errorMessage += 'If that doesn\'t work:\n';
+                errorMessage += '1. Go to Settings → Safari → Advanced → Website Data\n';
+                errorMessage += '2. Search for "ericeatherly.com"\n';
+                errorMessage += '3. Swipe left and tap "Delete"\n';
+                errorMessage += '4. Reload the page and try again';
+              } else {
+                errorMessage += 'Location access was denied. Please allow location access in your browser settings.';
+              }
+              break;
+            case error.POSITION_UNAVAILABLE:
+              errorMessage += 'Location information is unavailable. Your device may not be able to determine your location.';
+              break;
+            case error.TIMEOUT:
+              errorMessage += 'Location request timed out. Please try again.';
+              break;
+            default:
+              errorMessage += 'An unknown error occurred: ' + (error.message || 'Unknown error');
+              break;
+          }
+          
+          alert(errorMessage);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 20000,
+          maximumAge: 0
+        }
+      );
+    }
   };
 
   const handleSaveLocation = (locationData) => {
