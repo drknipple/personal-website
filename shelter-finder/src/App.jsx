@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FaMapMarkerAlt, FaHome, FaHandsHelping, FaUtensils, FaBuilding, FaMap, FaList, FaShare, FaEdit, FaPhone, FaClock, FaRuler } from 'react-icons/fa';
+import { FaLocationArrow } from 'react-icons/fa6';
 
 // Helper function to get type display info
 const getTypeInfo = (type) => {
@@ -41,7 +42,6 @@ function App() {
         },
         (error) => {
           // Don't show error on initial load - user can manually request location
-          console.log('Location access:', error.message);
         },
         {
           enableHighAccuracy: true,
@@ -100,7 +100,7 @@ function App() {
     }
 
     // Show loading state
-    const button = document.querySelector('.location-button');
+    const button = document.querySelector('.fab-location');
     if (button) {
       button.style.opacity = '0.6';
       button.disabled = true;
@@ -203,20 +203,6 @@ function App() {
 
   return (
     <div className="app mobile-first">
-      {/* Minimal header for mobile */}
-      <header className="app-header">
-        <h1>Resource Finder</h1>
-        <button 
-          onClick={handleGetLocation} 
-          className="location-button"
-          aria-label="Find my location"
-          title={userLocation ? "Location found" : "Tap to find your location"}
-        >
-          <FaMapMarkerAlt />
-          {userLocation && <span className="location-indicator"></span>}
-        </button>
-      </header>
-
       {/* Main content area - Map is primary */}
       <div className="main-content">
         {viewMode === 'map' && (
@@ -319,6 +305,17 @@ function App() {
           </div>
         )}
       </div>
+
+      {/* Floating Geolocation Button */}
+      <button 
+        onClick={handleGetLocation} 
+        className="fab-location"
+        aria-label="Find my location"
+        title={userLocation ? "Location found" : "Tap to find your location"}
+      >
+        <FaLocationArrow />
+        {userLocation && <span className="location-indicator"></span>}
+      </button>
 
       {/* Floating Action Button for Add Location */}
       <button 

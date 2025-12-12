@@ -13,48 +13,34 @@
   overflow: hidden;
 }
 
-/* Mobile-first header */
-.app-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  position: relative;
-  z-index: 100;
-}
-
-.app-header h1 {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 700;
-  flex: 1;
-}
-
-.location-button {
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  color: white;
-  width: 44px;
-  height: 44px;
+/* Floating Geolocation Button */
+.fab-location {
+  position: fixed;
+  bottom: 160px;
+  right: 1.5rem;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
-  font-size: 1.25rem;
+  background: white;
+  color: #667eea;
+  border: none;
+  font-size: 1.5rem;
   cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 150;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
   -webkit-tap-highlight-color: transparent;
-  position: relative;
 }
 
-.location-button:active {
-  background: rgba(255, 255, 255, 0.3);
+.fab-location:active {
+  transform: scale(0.95);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.location-button:disabled {
+.fab-location:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
@@ -69,6 +55,7 @@
   border: 2px solid white;
   border-radius: 50%;
   animation: pulse 2s infinite;
+  z-index: 1;
 }
 
 @keyframes pulse {
@@ -91,6 +78,7 @@
   flex: 1;
   position: relative;
   overflow: hidden;
+  height: 100vh;
 }
 
 /* Full-screen map container */
