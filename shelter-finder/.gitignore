@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# Allow built assets to be committed for deployment
+!assets/
+!index.html
+!vite.svg
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
