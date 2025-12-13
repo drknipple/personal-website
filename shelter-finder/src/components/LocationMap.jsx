@@ -59,7 +59,7 @@ export default function LocationMap({ locations, selectedLocation, onLocationSel
   };
 
   // Default center - prioritize user location, then selected location, then default
-  const defaultCenter = [40.7128, -74.0060]; // New York City
+  const defaultCenter = [38.2527, -85.7585]; // Louisville, Kentucky
   const center = userLocation 
     ? userLocation 
     : selectedLocation 
