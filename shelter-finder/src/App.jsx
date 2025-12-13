@@ -143,10 +143,10 @@ function App() {
           button.disabled = false;
         }
         
+        // On iOS Safari, geolocation can be finicky - just show a simple message
+        // The app works fine without geolocation (map shows all locations)
         if (error.code === error.PERMISSION_DENIED && isIOS) {
-          // Permission was denied without showing prompt
-          // Check if system location services might be disabled
-          alert('Safari is blocking location access.\n\nFirst, check system settings:\n1. Settings → Privacy & Security → Location Services\n2. Make sure Location Services is ON\n3. Scroll down and make sure Safari is set to "While Using App" or "Ask Next Time"\n\nThen reset website permission:\n1. Tap the "aA" icon in Safari\'s address bar\n2. Tap "Website Settings"\n3. Find "Location" and set it to "Ask"\n4. Close Safari completely (swipe up from app switcher)\n5. Reopen Safari and try again\n\nIf still not working, try:\n1. Settings → Safari → Advanced → Website Data\n2. Search for "ericeatherly.com" and delete it\n3. Reload the page');
+          alert('Location access is not available. The app works fine without it - you can still view all locations on the map.');
         } else {
           showLocationError(error, isIOS, isHTTPS);
         }
