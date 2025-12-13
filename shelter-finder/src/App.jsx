@@ -115,6 +115,19 @@ function App() {
       button.disabled = true;
     }
 
+    // On iOS, try without enableHighAccuracy first (sometimes works better)
+    const options = isIOS 
+      ? {
+          enableHighAccuracy: false, // Try false first on iOS
+          timeout: 15000,
+          maximumAge: 0
+        }
+      : {
+          enableHighAccuracy: true,
+          timeout: 20000,
+          maximumAge: 0
+        };
+
     // Try getCurrentPosition
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -131,17 +144,14 @@ function App() {
         }
         
         if (error.code === error.PERMISSION_DENIED && isIOS) {
-          // Permission was denied without showing prompt - need to reset Safari's cached permission
-          alert('Safari has blocked location access for this site.\n\nTo fix this:\n\n1. Tap the "aA" icon in Safari\'s address bar (left side)\n2. Tap "Website Settings"\n3. Find "Location" and tap it\n4. Select "Ask" (this will reset the permission)\n5. Close Safari completely:\n   - Swipe up from bottom, swipe up on Safari\n6. Reopen Safari and come back to this page\n7. Tap the location button again\n\nYou should now see a popup asking "Allow ericeatherly.com to use your location?" - tap "Allow"');
+          // Permission was denied without showing prompt
+          // Check if system location services might be disabled
+          alert('Safari is blocking location access.\n\nFirst, check system settings:\n1. Settings → Privacy & Security → Location Services\n2. Make sure Location Services is ON\n3. Scroll down and make sure Safari is set to "While Using App" or "Ask Next Time"\n\nThen reset website permission:\n1. Tap the "aA" icon in Safari\'s address bar\n2. Tap "Website Settings"\n3. Find "Location" and set it to "Ask"\n4. Close Safari completely (swipe up from app switcher)\n5. Reopen Safari and try again\n\nIf still not working, try:\n1. Settings → Safari → Advanced → Website Data\n2. Search for "ericeatherly.com" and delete it\n3. Reload the page');
         } else {
           showLocationError(error, isIOS, isHTTPS);
         }
       },
-      {
-        enableHighAccuracy: true,
-        timeout: 20000,
-        maximumAge: 0
-      }
+      options
     );
   };
 
