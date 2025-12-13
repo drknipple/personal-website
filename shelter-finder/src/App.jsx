@@ -115,7 +115,7 @@ function App() {
       button.disabled = true;
     }
 
-    // Try getCurrentPosition first (standard approach)
+    // Try getCurrentPosition
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setUserLocation([position.coords.latitude, position.coords.longitude]);
@@ -125,42 +125,15 @@ function App() {
         }
       },
       (error) => {
-        // If getCurrentPosition fails, try watchPosition as fallback (sometimes works better on iOS)
-        if (error.code === error.PERMISSION_DENIED || error.code === error.TIMEOUT) {
-          // Try watchPosition with a single update
-          const watchId = navigator.geolocation.watchPosition(
-            (position) => {
-              setUserLocation([position.coords.latitude, position.coords.longitude]);
-              navigator.geolocation.clearWatch(watchId);
-              if (button) {
-                button.style.opacity = '1';
-                button.disabled = false;
-              }
-            },
-            (watchError) => {
-              navigator.geolocation.clearWatch(watchId);
-              if (button) {
-                button.style.opacity = '1';
-                button.disabled = false;
-              }
-              showLocationError(watchError, isIOS, isHTTPS);
-            },
-            {
-              enableHighAccuracy: true,
-              timeout: 20000,
-              maximumAge: 0
-            }
-          );
-          
-          // Clear watch after 5 seconds if no position received
-          setTimeout(() => {
-            navigator.geolocation.clearWatch(watchId);
-          }, 5000);
+        if (button) {
+          button.style.opacity = '1';
+          button.disabled = false;
+        }
+        
+        if (error.code === error.PERMISSION_DENIED && isIOS) {
+          // Permission was denied without showing prompt - need to reset Safari's cached permission
+          alert('Safari has blocked location access for this site.\n\nTo fix this:\n\n1. Tap the "aA" icon in Safari\'s address bar (left side)\n2. Tap "Website Settings"\n3. Find "Location" and tap it\n4. Select "Ask" (this will reset the permission)\n5. Close Safari completely:\n   - Swipe up from bottom, swipe up on Safari\n6. Reopen Safari and come back to this page\n7. Tap the location button again\n\nYou should now see a popup asking "Allow ericeatherly.com to use your location?" - tap "Allow"');
         } else {
-          if (button) {
-            button.style.opacity = '1';
-            button.disabled = false;
-          }
           showLocationError(error, isIOS, isHTTPS);
         }
       },
@@ -179,18 +152,7 @@ function App() {
     switch(error.code) {
       case error.PERMISSION_DENIED:
         if (isIOS) {
-          errorMessage += 'Safari is not allowing location access.\n\n';
-          errorMessage += 'Try these steps:\n';
-          errorMessage += '1. When the popup appears, tap "Allow"\n';
-          errorMessage += '2. If no popup appears, tap the "aA" icon in Safari address bar\n';
-          errorMessage += '3. Tap "Website Settings"\n';
-          errorMessage += '4. Tap "Location" and select "Ask" or "Allow"\n';
-          errorMessage += '5. Close Safari completely (swipe up from app switcher)\n';
-          errorMessage += '6. Reopen Safari and try again\n\n';
-          errorMessage += 'If still not working:\n';
-          errorMessage += '1. Settings → Safari → Advanced → Website Data\n';
-          errorMessage += '2. Search for "ericeatherly.com" and delete it\n';
-          errorMessage += '3. Reload the page';
+          errorMessage += 'Location access was denied. Please check Safari settings.';
         } else {
           errorMessage += 'Location access was denied. Please allow location access in your browser settings.';
         }
