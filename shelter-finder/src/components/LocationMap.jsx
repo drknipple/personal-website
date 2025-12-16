@@ -104,20 +104,12 @@ export default function LocationMap({ locations, selectedLocation, onLocationSel
         dragging={true}
         zoomControl={true}
       >
-        {/* Google Maps tiles - requires API key in .env file as VITE_GOOGLE_MAPS_API_KEY */}
-        {import.meta.env.VITE_GOOGLE_MAPS_API_KEY ? (
-          <TileLayer
-            attribution='&copy; <a href="https://www.google.com/maps">Google Maps</a>'
-            url={`https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`}
-            maxZoom={20}
-            subdomains={['mt0', 'mt1', 'mt2', 'mt3']}
-          />
-        ) : (
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-        )}
+        {/* OpenStreetMap tiles - free, no API key required */}
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          maxZoom={19}
+        />
         <MapViewUpdater center={center} zoom={zoomLevel} />
         
         {/* User location marker */}
