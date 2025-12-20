@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Favorite Places - Interactive Complete</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .favorite-counter {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: #666;
+        }
+
+        .places-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .place-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            width: 300px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .place-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .place-card.expanded {
+            border: 2px solid #3498db;
+        }
+
+        .place-card h2 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .place-type {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .place-type.restaurant {
+            background: #e74c3c;
+        }
+
+        .place-type.park {
+            background: #27ae60;
+        }
+
+        .place-type.library {
+            background: #9b59b6;
+        }
+
+        .place-address {
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .place-details {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .place-details.show {
+            display: block;
+        }
+
+        button {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #229954;
+        }
+
+        button.favorited {
+            background: #e74c3c;
+        }
+
+        button.favorited:hover {
+            background: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>My Favorite Places</h1>
+        <div class="favorite-counter">
+            Favorites: <span id="favoriteCount">0</span>
+        </div>
+        
+        <div class="places-grid">
+            <div class="place-card" id="card1" data-card="1">
+                <h2>Central Park</h2>
+                <span class="place-type park">Park</span>
+                <p class="place-address">New York, NY</p>
+                <div class="place-details" id="details1">
+                    <p>A beautiful park in the heart of Manhattan!</p>
+                    <button id="fav1" onclick="event.stopPropagation(); toggleFavorite('card1', 'fav1')">Add to Favorites</button>
+                </div>
+            </div>
+
+            <div class="place-card" id="card2" data-card="2">
+                <h2>Local Library</h2>
+                <span class="place-type library">Library</span>
+                <p class="place-address">Main Street, Your City</p>
+                <div class="place-details" id="details2">
+                    <p>A quiet place to read and study.</p>
+                    <button id="fav2" onclick="event.stopPropagation(); toggleFavorite('card2', 'fav2')">Add to Favorites</button>
+                </div>
+            </div>
+
+            <div class="place-card" id="card3" data-card="3">
+                <h2>Favorite Cafe</h2>
+                <span class="place-type restaurant">Restaurant</span>
+                <p class="place-address">Oak Avenue, Your City</p>
+                <div class="place-details" id="details3">
+                    <p>Best coffee and pastries in town!</p>
+                    <button id="fav3" onclick="event.stopPropagation(); toggleFavorite('card3', 'fav3')">Add to Favorites</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let favoriteCount = 0;
+        const favoritedCards = new Set();
+
+        // Add click event listeners to each card
+        const cards = document.querySelectorAll('.place-card');
+        
+        cards.forEach(card => {
+            card.addEventListener('click', function() {
+                const cardId = this.id;
+                const detailsId = 'details' + cardId.replace('card', '');
+                const details = document.getElementById(detailsId);
+                
+                // Toggle details visibility
+                details.classList.toggle('show');
+                
+                // Toggle expanded class for visual feedback
+                this.classList.toggle('expanded');
+            });
+        });
+
+        function toggleFavorite(cardId, buttonId) {
+            const button = document.getElementById(buttonId);
+            const card = document.getElementById(cardId);
+            
+            if (favoritedCards.has(cardId)) {
+                // Unfavorite
+                favoritedCards.delete(cardId);
+                button.textContent = 'Add to Favorites';
+                button.classList.remove('favorited');
+                favoriteCount--;
+            } else {
+                // Favorite
+                favoritedCards.add(cardId);
+                button.textContent = 'Unfavorite';
+                button.classList.add('favorited');
+                favoriteCount++;
+            }
+            
+            // Update counter
+            document.getElementById('favoriteCount').textContent = favoriteCount;
+        }
+    </script>
+</body>
+</html>
+
