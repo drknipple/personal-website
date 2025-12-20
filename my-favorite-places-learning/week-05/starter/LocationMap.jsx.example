@@ -1,0 +1,28 @@
+// Week 5 Starter: Maps Integration
+// Install dependencies first: npm install leaflet react-leaflet
+// Don't forget: import 'leaflet/dist/leaflet.css' in your main.jsx or App.jsx
+
+import { MapContainer, TileLayer } from 'react-leaflet';
+
+function LocationMap() {
+  // TODO: Set your city's coordinates
+  // Find them at: https://www.latlong.net/
+  const cityCenter = [40.7128, -74.0060]; // Example: New York City
+
+  return (
+    <MapContainer
+      center={cityCenter}
+      zoom={13}
+      style={{ height: '500px', width: '100%' }}
+    >
+      <TileLayer
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      />
+      {/* TODO: Add markers for your locations */}
+    </MapContainer>
+  );
+}
+
+export default LocationMap;
+

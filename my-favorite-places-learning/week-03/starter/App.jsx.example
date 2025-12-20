@@ -1,0 +1,30 @@
+// Week 3 Starter: React Components & Props
+// Copy this to your src/App.jsx
+
+function LocationCard({ name, address, type }) {
+  // TODO: Build the LocationCard component
+  // It should display the name, address, and type
+  return (
+    <div>
+      {/* Your code here */}
+    </div>
+  );
+}
+
+function App() {
+  const places = [
+    { name: "Central Park", address: "New York, NY", type: "Park" },
+    { name: "Local Library", address: "Main Street", type: "Library" },
+    { name: "Favorite Cafe", address: "Oak Avenue", type: "Restaurant" }
+  ];
+
+  return (
+    <div>
+      <h1>My Favorite Places</h1>
+      {/* TODO: Map over places and render LocationCard for each */}
+    </div>
+  );
+}
+
+export default App;
+

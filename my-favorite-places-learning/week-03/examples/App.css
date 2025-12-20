@@ -1,0 +1,83 @@
+/* Week 3 Complete Example: Basic Styling */
+
+.app {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+h1 {
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.add-button {
+  background: #27ae60;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+.add-button:hover {
+  background: #229954;
+}
+
+.locations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.location-card {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.location-card h3 {
+  margin: 0 0 10px 0;
+  color: #2c3e50;
+}
+
+.type {
+  display: inline-block;
+  background: #3498db;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+
+.location-card button {
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.location-card button:hover {
+  background: #2980b9;
+}
+
+.details {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.details p {
+  margin: 5px 0;
+  color: #666;
+}
+

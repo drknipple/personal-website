@@ -1,0 +1,34 @@
+// Week 6 Starter: Geocoding Utility
+// Create this file in src/utils/geocoding.js
+
+// Add a delay to be respectful of the free API
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+export async function geocodeAddress(address, city, state) {
+  // TODO: Build the full address string
+  // Combine address, city, and state (filter out empty parts)
+  
+  // TODO: Add a 1 second delay (be respectful!)
+  await delay(1000);
+  
+  // TODO: Build the Nominatim API URL
+  // Format: https://nominatim.openstreetmap.org/search?format=json&q={address}
+  // Use encodeURIComponent to safely encode the address
+  
+  try {
+    // TODO: Fetch from the API
+    // Don't forget the User-Agent header (required by Nominatim)
+    // Headers: { 'User-Agent': 'MyFavoritePlacesApp/1.0' }
+    
+    // TODO: Parse the JSON response
+    
+    // TODO: Check if results exist
+    // If yes, return { latitude: parseFloat(data[0].lat), longitude: parseFloat(data[0].lon) }
+    // If no, throw an error: 'Address not found'
+    
+  } catch (error) {
+    // TODO: Handle errors appropriately
+    throw new Error('Error finding location. Please try again later.');
+  }
+}
+
