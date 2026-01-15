@@ -1,5 +1,17 @@
-function LocationCard({ name, type, address, phone, details}) {
+import { useState } from 'react';
 
+function LocationCard({ name, type, address, phone, details}) {
+    const [copied, setCopied] = useState(false);
+
+    const copyAddress = async () => {
+        try {
+            await navigator.clipboard.writeText(address);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch (err) {
+            console.error('Failed to copy address:', err);
+        }
+    };
     const getTypeColor = (type) => {
         if (type.toLowerCase() === 'shelter') return '#ff9800'; // Orange
         if (type.toLowerCase() === 'feeding program') return '#27ae60'; // Green
@@ -22,14 +34,27 @@ function LocationCard({ name, type, address, phone, details}) {
                 background: getTypeColor(type),
                 color: 'white', 
                 padding: '4px 8px', 
-                borderRadius: '4px', 
+                borderRadius: '12px', 
                 fontSize: '12px', 
                 display: 'inline-block', 
                 marginBottom: '10px' 
                 }}>{type}</span>
-            <p style={{ margin: '5px 0', color: '#666' }}>{address}</p>
-            <p style={{ margin: '5px 0', color: '#666' }}>{phone}</p>
-            <p style={{ marginTop: '10px', color: '#666' }}>{details}</p>
+            <p style={{ fontSize: '14px', margin: '2px 0', color: '#666' }}>{address}</p>
+            <p style={{ fontSize: '14px', margin: '2px 0', color: '#666' }}>{phone}</p>
+            <p style={{ marginTop: '15px', color: '#666' }}>{details}</p>
+      <button 
+        onClick={copyAddress}
+        style={{
+          padding: '8px 16px',
+          background: copied ? '#27ae60' : '#3498db',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer'
+        }}
+      >
+        {copied ? '✓ Copied!' : 'Copy Address'}
+      </button>
         </div>
     );
 }
