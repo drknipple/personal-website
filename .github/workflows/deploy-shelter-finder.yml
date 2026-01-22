@@ -1,4 +1,8 @@
-name: Deploy Resource Finder
+# Deploys the full site (main site + shelter-finder app) to gh-pages.
+# REQUIRED: In GitHub repo Settings → Pages, set "Deploy from a branch" and
+# choose branch "gh-pages" / (root). Otherwise the shelter-finder app will 404.
+
+name: Deploy Site (including Resource Finder)
 
 on:
   push:
@@ -6,37 +10,58 @@ on:
       - main
     paths:
       - 'shelter-finder/**'
+      - 'index.html'
+      - 'index2.html'
+      - 'main.js'
+      - 'style.css'
+      - 'CNAME'
+      - 'images/**'
+      - 'pizza/**'
       - '.github/workflows/deploy-shelter-finder.yml'
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    
+    permissions:
+      contents: write
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
           cache-dependency-path: shelter-finder/package-lock.json
-      
+
       - name: Install dependencies
         working-directory: ./shelter-finder
         run: npm ci
-      
-      - name: Build
+
+      - name: Build shelter-finder
         working-directory: ./shelter-finder
         run: npm run build
         env:
           NODE_ENV: production
-      
+
+      - name: Prepare deploy directory
+        run: |
+          mkdir -p deploy deploy/shelter-finder
+          cp index.html deploy/ 2>/dev/null || true
+          cp index2.html deploy/ 2>/dev/null || true
+          cp main.js deploy/ 2>/dev/null || true
+          cp style.css deploy/ 2>/dev/null || true
+          cp CNAME deploy/ 2>/dev/null || true
+          cp -r images deploy/ 2>/dev/null || true
+          cp -r pizza deploy/ 2>/dev/null || true
+          cp -r shelter-finder/dist/* deploy/shelter-finder/
+          touch deploy/.nojekyll
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./shelter-finder/dist
-          destination_dir: ./shelter-finder
-
+          publish_dir: ./deploy
+          force_orphan: true
