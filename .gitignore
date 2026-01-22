@@ -1,0 +1,12 @@
+# Dependencies – never commit; CI installs from shelter-finder/package.json
+node_modules/
+
+# Private / unnecessary for public site
+my-favorite-places-learning/
+shelter-sfproject/
+vite/
+wip/
+
+# Root package files – deploy uses only shelter-finder; keep locally if needed
+package.json
+package-lock.json
