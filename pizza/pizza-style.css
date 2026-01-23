@@ -267,6 +267,14 @@ img {
 .footer {
     width: 100%;
     text-align: center;
+    padding: 5px 0 5px 0;
+    background: #d7e8ec;
+    color: rgb(3, 3, 66);
+    margin-bottom: 20px
+}
+
+.footer:hover {
+    background: #ccecf2;
 }
 
 body {
