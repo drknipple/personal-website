@@ -84,22 +84,20 @@
             color: rgb(97, 97, 170);
         }
 
-        /* Sidebar for location list - always visible on desktop/tablet */
+        /* Full-screen overlay for location list (List view) */
         .location-sidebar {
-            width: 400px;
-            height: calc(100vh - 40px);
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 80px; /* leave room for bottom map/list nav */
+            left: 0;
+            width: 100%;
             background: white;
-            box-shadow: -2px 0 20px rgba(0, 0, 0, 0.1);
-            z-index: 999;
-            overflow-y: auto;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+            z-index: 1500;
+            overflow: hidden; /* only inner content scrolls */
             display: flex;
             flex-direction: column;
-        }
-
-        @media (max-width: 768px) {
-            .location-sidebar {
-                display: none; /* Hide sidebar on mobile */
-            }
         }
 
         .sidebar-header {
@@ -139,7 +137,45 @@
         .sidebar-content {
             flex: 1;
             overflow-y: auto;
-            padding: 0;
+            /* small bottom padding so last card has breathing room above edge */
+            padding: 0 0 24px;
+        }
+
+        /* Bottom Map/List toggle */
+        .map-list-toggle {
+            position: fixed;
+            left: 50%;
+            bottom: 16px;
+            transform: translateX(-50%);
+            z-index: 1500;
+            display: flex;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 999px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+
+        .map-list-btn {
+            border: none;
+            padding: 0.4rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            background: transparent;
+            color: #555;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        .map-list-btn.active {
+            background: #2892CF;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .map-list-toggle {
+                bottom: 8px;
+                font-size: 0.85rem;
+            }
         }
 
         /* Location cards */
@@ -148,7 +184,8 @@
             border-bottom: 1px solid #e0e0e0;
             cursor: pointer;
             transition: background-color 0.2s ease;
-            overflow: hidden;
+            /* let card grow with content; don't clip internals */
+            overflow: visible;
         }
 
         .location-card:hover {
@@ -174,6 +211,12 @@
             object-fit: cover;
             display: block;
             transition: opacity 0.3s ease;
+        }
+
+        .location-card-image-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #e5e7eb 0%, #f9fafb 100%);
         }
 
         .location-card-image-nav {
@@ -260,6 +303,30 @@
             line-height: 1.5;
             margin: 0 0 1rem 0;
             font-size: 0.9rem;
+        }
+
+        @media (min-width: 769px) {
+            .location-sidebar .sidebar-content {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+                gap: 1.5rem;
+                padding: 1.5rem;
+            }
+
+            .location-sidebar .location-card {
+                border-bottom: none;
+                border: 1px solid #e5e7eb;
+                border-radius: 12px;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+                background: #fff;
+            }
+
+            .location-sidebar .location-card.active {
+                background-color: #e8f4f8;
+                border-left: none;
+                border-color: #2892CF;
+                box-shadow: 0 0 0 2px rgba(40, 146, 207, 0.2);
+            }
         }
 
         .location-card-info {
@@ -446,7 +513,7 @@
             left: 20px;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            padding: 1.5rem;
+            padding: 1rem 1.25rem;
             border-radius: 12px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
             z-index: 1000;
@@ -454,10 +521,20 @@
         }
 
         .legend-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             font-weight: 600;
             font-size: 0.9rem;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
             color: #1a1a1a;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .legend-toggle-icon {
+            font-size: 0.9rem;
+            color: #666;
         }
 
         .legend-item {
@@ -494,7 +571,7 @@
         /* Map style toggle */
         .map-style-toggle {
             position: absolute;
-            bottom: 100px;
+            bottom: 140px;
             right: 20px;
             z-index: 1000;
         }
@@ -509,9 +586,7 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
             transition: all 0.3s ease;
             font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            display: inline-block;
         }
 
         .map-style-toggle-btn:hover {
@@ -520,15 +595,11 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
-        .map-style-toggle-btn .icon {
-            font-size: 1.1rem;
-        }
-
         /* Add marker button */
         .add-marker-control {
             position: absolute;
             bottom: 100px;
-            left: 20px;
+            right: 20px;
             z-index: 1000;
         }
 
@@ -820,38 +891,63 @@
             <!-- Map Style Toggle -->
             <div class="map-style-toggle">
                 <button class="map-style-toggle-btn" id="map-style-toggle-btn" onclick="toggleMapStyle()">
-                    <span class="icon">🛰️</span> Satellite
+                    Satellite
                 </button>
             </div>
 
             <!-- Neighborhood Legend -->
-            <div class="neighborhood-legend">
-                <div class="legend-title">Neighborhoods</div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: rgba(155, 89, 182, 0.3); border-color: #9b59b6;"></div>
-                    <span>Beechmont</span>
+            <div class="neighborhood-legend" id="neighborhood-legend">
+                <div class="legend-title" onclick="toggleLegend()">
+                    <span>Neighborhoods</span>
+                    <span class="legend-toggle-icon" id="legend-toggle-icon">▾</span>
                 </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: rgba(233, 30, 99, 0.3); border-color: #e91e63;"></div>
-                    <span>Southside</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: rgba(243, 156, 18, 0.3); border-color: #f39c12;"></div>
-                    <span>Southland Park</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: rgba(26, 188, 156, 0.3); border-color: #1abc9c;"></div>
-                    <span>Kenwood Hills</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: rgba(52, 152, 219, 0.3); border-color: #3498db;"></div>
-                    <span>Iroquois West</span>
+                <div class="legend-items" id="legend-items">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: rgba(155, 89, 182, 0.3); border-color: #9b59b6;"></div>
+                        <span>Beechmont</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: rgba(233, 30, 99, 0.3); border-color: #e91e63;"></div>
+                        <span>Southside</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: rgba(243, 156, 18, 0.3); border-color: #f39c12;"></div>
+                        <span>Southland Park</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: rgba(26, 188, 156, 0.3); border-color: #1abc9c;"></div>
+                        <span>Kenwood Hills</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: rgba(52, 152, 219, 0.3); border-color: #3498db;"></div>
+                        <span>Iroquois</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: rgba(46, 204, 113, 0.3); border-color: #2ecc71;"></div>
+                        <span>Hazelwood</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: rgba(0, 100, 0, 0.3); border-color: #006400;"></div>
+                        <span>Iroquois Park</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: rgba(0, 188, 212, 0.3); border-color: #00bcd4;"></div>
+                        <span>Cloverleaf</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: rgba(255, 87, 34, 0.3); border-color: #ff5722;"></div>
+                        <span>Jacobs</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: rgba(63, 81, 181, 0.3); border-color: #3f51b5;"></div>
+                        <span>Wyandotte</span>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Location Sidebar -->
-        <div class="location-sidebar" id="location-sidebar">
+        <div class="location-sidebar" id="location-sidebar" style="display: none;">
             <div class="sidebar-header">
                 <div class="sidebar-header-row">
                     <h2>Locations</h2>
@@ -885,6 +981,12 @@
                 <!-- Location cards will be dynamically generated here -->
             </div>
         </div>
+    </div>
+
+    <!-- Bottom Map/List toggle -->
+    <div class="map-list-toggle">
+        <button class="map-list-btn active" id="map-view-btn" onclick="setViewMode('map')">Map</button>
+        <button class="map-list-btn" id="list-view-btn" onclick="setViewMode('list')">List</button>
     </div>
 
     <!-- Mobile Bottom Sheet -->
@@ -926,7 +1028,9 @@
                         mapWrapper.style.height = `calc(100vh - ${headerHeight}px)`;
                     }
                     if (sidebar) {
-                        sidebar.style.height = `calc(100vh - ${headerHeight}px)`;
+                        // Leave room for the bottom Map/List nav (approx 80px)
+                        const bottomNavHeight = 80;
+                        sidebar.style.height = `calc(100vh - ${headerHeight}px - ${bottomNavHeight}px)`;
                     }
                 };
                 // Run immediately and after a short delay
@@ -951,7 +1055,12 @@
 
         // Initialize map
         const map = L.map('iroquois-map', {
-            scrollWheelZoom: false
+            // Wheel zoom tuning (aiming for Google Maps–like smoothness)
+            scrollWheelZoom: true,
+            wheelPxPerZoomLevel: 100, // overall sensitivity (higher = slower)
+            zoomSnap: .5,              // allow fractional zoom, no snapping
+            zoomDelta: 5,          // smaller per-step zoom change
+            wheelDebounceTime: 200     // smooth but responsive
         }).setView([38.16125210200293, -85.78630408253188], 14);
 
         // Create tile layers
@@ -976,10 +1085,10 @@
             
             if (currentLayer === standardLayer) {
                 currentLayer = satelliteLayer;
-                document.getElementById('map-style-toggle-btn').innerHTML = '<span class="icon">🗺️</span> Map';
+                document.getElementById('map-style-toggle-btn').textContent = 'Map';
             } else {
                 currentLayer = standardLayer;
-                document.getElementById('map-style-toggle-btn').innerHTML = '<span class="icon">🛰️</span> Satellite';
+                document.getElementById('map-style-toggle-btn').textContent = 'Satellite';
             }
             
             currentLayer.addTo(map);
@@ -1016,18 +1125,9 @@
             fillColor: 'rgba(155, 89, 182, 0.3)',
             fillOpacity: 0.3,
             weight: 3,
-            opacity: 0.8
+            opacity: 0.8,
+            interactive: false
         }).addTo(map);
-
-        beechmontPolygon.on('click', function() {
-            map.fitBounds(beechmontPolygon.getBounds(), {
-                padding: [50, 50],
-                animate: true,
-                duration: 0.5
-            });
-        });
-
-        beechmontPolygon.bindPopup('<div class="custom-popup"><h4>Beechmont Neighborhood</h4></div>');
 
         // Southside Neighborhood Boundary
         const southsideBoundary = [
@@ -1055,18 +1155,9 @@
             fillColor: 'rgba(233, 30, 99, 0.3)',
             fillOpacity: 0.3,
             weight: 3,
-            opacity: 0.8
+            opacity: 0.8,
+            interactive: false
         }).addTo(map);
-
-        southsidePolygon.on('click', function() {
-            map.fitBounds(southsidePolygon.getBounds(), {
-                padding: [50, 50],
-                animate: true,
-                duration: 0.5
-            });
-        });
-
-        southsidePolygon.bindPopup('<div class="custom-popup"><h4>Southside Neighborhood</h4></div>');
 
         // Southland Park Neighborhood Boundary
         const southlandParkBoundary = [
@@ -1089,18 +1180,9 @@
             fillColor: 'rgba(243, 156, 18, 0.3)',
             fillOpacity: 0.3,
             weight: 3,
-            opacity: 0.8
+            opacity: 0.8,
+            interactive: false
         }).addTo(map);
-
-        southlandParkPolygon.on('click', function() {
-            map.fitBounds(southlandParkPolygon.getBounds(), {
-                padding: [50, 50],
-                animate: true,
-                duration: 0.5
-            });
-        });
-
-        southlandParkPolygon.bindPopup('<div class="custom-popup"><h4>Southland Park Neighborhood</h4></div>');
 
         // Kenwood Hills Neighborhood Boundary
         const kenwoodHillsBoundary = [
@@ -1128,20 +1210,11 @@
             fillColor: 'rgba(26, 188, 156, 0.3)',
             fillOpacity: 0.3,
             weight: 3,
-            opacity: 0.8
+            opacity: 0.8,
+            interactive: false
         }).addTo(map);
 
-        kenwoodHillsPolygon.on('click', function() {
-            map.fitBounds(kenwoodHillsPolygon.getBounds(), {
-                padding: [50, 50],
-                animate: true,
-                duration: 0.5
-            });
-        });
-
-        kenwoodHillsPolygon.bindPopup('<div class="custom-popup"><h4>Kenwood Hills Neighborhood</h4></div>');
-
-        // Iroquois West Neighborhood Boundary
+        // Iroquois Neighborhood (West + East) Boundaries
         const iroquoisWestBoundary = [
             [38.16983566581554, -85.78125727239807],
             [38.17301191027642, -85.7769858620973],
@@ -1158,23 +1231,182 @@
             [38.16983566581554, -85.78125727239807]
         ];
 
-        const iroquoisWestPolygon = L.polygon(iroquoisWestBoundary, {
+        const iroquoisEastBoundary = [
+            [38.16979339780463, -85.78116446160288],
+            [38.16978748178522, -85.78331927798065],
+            [38.170746862850635, -85.78337058364889],
+            [38.17178653280308, -85.78466509316398],
+            [38.17248946273842, -85.79019308800797],
+            [38.17248135473351, -85.79255127281681],
+            [38.173903771980534, -85.7927840900507],
+            [38.17394952930335, -85.79335598415997],
+            [38.17551538927277, -85.79249437998456],
+            [38.17941996500833, -85.78824245328092],
+            [38.17961181111003, -85.78332029922095],
+            [38.178554520143074, -85.78307515083429],
+            [38.177995355556995, -85.78286969907596],
+            [38.17507116537445, -85.78259162385247],
+            [38.16977307693797, -85.78124272072114],
+            [38.16979339780463, -85.78116446160288]
+        ];
+
+        const iroquoisPolygon = L.polygon([iroquoisWestBoundary, iroquoisEastBoundary], {
             color: '#3498db',
             fillColor: 'rgba(52, 152, 219, 0.3)',
             fillOpacity: 0.3,
             weight: 3,
-            opacity: 0.8
+            opacity: 0.8,
+            interactive: false
         }).addTo(map);
 
-        iroquoisWestPolygon.on('click', function() {
-            map.fitBounds(iroquoisWestPolygon.getBounds(), {
-                padding: [50, 50],
-                animate: true,
-                duration: 0.5
-            });
-        });
+        // Iroquois Park Neighborhood Boundary (darkest green)
+        const iroquoisParkBoundary = [
+            [38.17023052889908, -85.79727074587727],
+            [38.173951792031744, -85.79336074435606],
+            [38.17389313645276, -85.79274107170637],
+            [38.17246531474071, -85.79253511474359],
+            [38.1724511747955, -85.79045826051932],
+            [38.17247617361112, -85.79024297073535],
+            [38.17178015438724, -85.78466159307868],
+            [38.17071308295566, -85.7833526515011],
+            [38.169782351261205, -85.78332470905076],
+            [38.169831394451, -85.781292695524],
+            [38.150792148075986, -85.77641489782913],
+            [38.15108295954801, -85.78008608695976],
+            [38.1514512427603, -85.78128742399873],
+            [38.151528730091954, -85.78200923967579],
+            [38.15281072467483, -85.79106273155011],
+            [38.15369493416874, -85.79254183831907],
+            [38.15382917880141, -85.79338224341828],
+            [38.153827318152246, -85.79494660169114],
+            [38.1540635332193, -85.79564134007016],
+            [38.154114520369006, -85.79752792600902],
+            [38.155380626472024, -85.8019692998872],
+            [38.159238636086876, -85.79811733990772],
+            [38.17041143643707, -85.79713480954976],
+            [38.17393059631472, -85.79338837387729],
+            [38.17392063052422, -85.79276079472596],
+            [38.17023052889908, -85.79727074587727]
+        ];
 
-        iroquoisWestPolygon.bindPopup('<div class="custom-popup"><h4>Iroquois West Neighborhood</h4></div>');
+        const iroquoisParkPolygon = L.polygon(iroquoisParkBoundary, {
+            color: '#006400',
+            fillColor: 'rgba(0, 100, 0, 0.3)',
+            fillOpacity: 0.3,
+            weight: 3,
+            opacity: 0.9,
+            interactive: false
+        }).addTo(map);
+
+        // Cloverleaf Neighborhood Boundary
+        const cloverleafBoundary = [
+            [38.17344124126947, -85.81782390726927],
+            [38.18541621919145, -85.80883788827126],
+            [38.18611594776981, -85.80113446668622],
+            [38.183566548329765, -85.80024365241522],
+            [38.18134956360313, -85.79924880274045],
+            [38.17891753253562, -85.7988627245789],
+            [38.17576379587185, -85.79781329654062],
+            [38.17458644445219, -85.79784825616083],
+            [38.173299691974734, -85.79813497924529],
+            [38.17194328912722, -85.79782941850145],
+            [38.17031859209134, -85.79753248132825],
+            [38.17041452073144, -85.79801564657552],
+            [38.172489653921005, -85.80277948814208],
+            [38.17340007058829, -85.81771688679449],
+            [38.17344124126947, -85.81782390726927]
+        ];
+
+        const cloverleafPolygon = L.polygon(cloverleafBoundary, {
+            color: '#00bcd4',
+            fillColor: 'rgba(0, 188, 212, 0.3)',
+            fillOpacity: 0.3,
+            weight: 3,
+            opacity: 0.8,
+            interactive: false
+        }).addTo(map);
+
+        // Hazelwood Neighborhood Boundary
+        const hazelwoodBoundary = [
+            [38.17957452679555, -85.78326027310024],
+            [38.179459143802625, -85.7882661128282],
+            [38.17546870363706, -85.79255046330488],
+            [38.173983725987654, -85.79335273915729],
+            [38.17060470348804, -85.79676034186507],
+            [38.170389563570076, -85.79753592744285],
+            [38.17098749038911, -85.797795911833],
+            [38.17198497346654, -85.79779097518048],
+            [38.17330972069582, -85.79812049205536],
+            [38.17458698178604, -85.79780875768448],
+            [38.175834572028315, -85.79786601149095],
+            [38.17893316968446, -85.79886628974909],
+            [38.1813739329013, -85.79925175483014],
+            [38.18356570681577, -85.80025961493658],
+            [38.18613054524891, -85.80109833323043],
+            [38.18712487003633, -85.78783288988122],
+            [38.187885567212675, -85.78544524414335],
+            [38.18938813187942, -85.78346142383626],
+            [38.184862972454724, -85.78410241694935],
+            [38.17957313906338, -85.78329191043758],
+            [38.17957452679555, -85.78326027310024]
+        ];
+
+        const hazelwoodPolygon = L.polygon(hazelwoodBoundary, {
+            color: '#2ecc71',
+            fillColor: 'rgba(46, 204, 113, 0.3)',
+            fillOpacity: 0.3,
+            weight: 3,
+            opacity: 0.8,
+            interactive: false
+        }).addTo(map);
+
+        // Jacobs Neighborhood Boundary
+        const jacobsBoundary = [
+            [38.18629865110858, -85.80116083560449],
+            [38.18824929732231, -85.80145747534804],
+            [38.189985048184354, -85.80106169037771],
+            [38.1942915786784, -85.80071736044063],
+            [38.19478988533046, -85.80026345953608],
+            [38.195459119783386, -85.79917291964473],
+            [38.19674550854358, -85.79908847710874],
+            [38.196289040376826, -85.78299110467418],
+            [38.188963610051964, -85.78348728993161],
+            [38.187267520981266, -85.78810486728611],
+            [38.1863096189678, -85.80112832175512],
+            [38.18629865110858, -85.80116083560449]
+        ];
+
+        const jacobsPolygon = L.polygon(jacobsBoundary, {
+            color: '#ff5722',
+            fillColor: 'rgba(255, 87, 34, 0.3)',
+            fillOpacity: 0.3,
+            weight: 3,
+            opacity: 0.8,
+            interactive: false
+        }).addTo(map);
+
+        // Wyandotte Neighborhood Boundary
+        const wyandotteBoundary = [
+            [38.18898635261771, -85.78343779917047],
+            [38.19860022297854, -85.78277254077673],
+            [38.19862750541295, -85.76853666679797],
+            [38.19934698074228, -85.76772678479914],
+            [38.19902874357431, -85.76681127118724],
+            [38.19002599490321, -85.76676449660218],
+            [38.18944683029117, -85.77522228348934],
+            [38.189735838342955, -85.78011862682128],
+            [38.18900253385006, -85.78343376057994],
+            [38.18898635261771, -85.78343779917047]
+        ];
+
+        const wyandottePolygon = L.polygon(wyandotteBoundary, {
+            color: '#3f51b5',
+            fillColor: 'rgba(63, 81, 181, 0.3)',
+            fillOpacity: 0.3,
+            weight: 3,
+            opacity: 0.8,
+            interactive: false
+        }).addTo(map);
 
         // Location data — loaded from Supabase only (see loadLocationsFromSupabase, seed-locations.sql)
         const locations = [];
@@ -1197,29 +1429,37 @@
                 const images = location.images || (location.image ? [location.image] : []);
                 const currentImageIndex = 0;
                 
-                // Build additional info HTML if it exists
-                let additionalInfo = '';
-                if (location.address || location.yearAcquired || location.hours) {
-                    additionalInfo = '<div class="location-card-info">';
-                    if (location.address) {
-                        additionalInfo += `<div class="location-card-info-item"><span class="location-card-info-label">Address:</span><span class="location-card-info-value">${location.address.replace(/\n/g, '<br>')}</span></div>`;
-                    }
-                    if (location.yearAcquired) {
-                        additionalInfo += `<div class="location-card-info-item"><span class="location-card-info-label">Year Acquired:</span><span class="location-card-info-value">${location.yearAcquired}</span></div>`;
-                    }
-                    if (location.hours) {
-                        additionalInfo += `<div class="location-card-info-item"><span class="location-card-info-label">Hours:</span><span class="location-card-info-value">${location.hours}</span></div>`;
-                    }
-                    additionalInfo += '</div>';
-                }
+                // Build additional info HTML (always show labels; fill missing with N/A)
+                const addressValue = location.address
+                    ? location.address.replace(/\n/g, '<br>')
+                    : 'N/A';
+                const yearValue = location.yearAcquired || 'N/A';
+                const hoursValue = location.hours || 'N/A';
+
+                const additionalInfo = `
+                    <div class="location-card-info">
+                        <div class="location-card-info-item">
+                            <span class="location-card-info-label">Address:</span>
+                            <span class="location-card-info-value">${addressValue}</span>
+                        </div>
+                        <div class="location-card-info-item">
+                            <span class="location-card-info-label">Year Acquired:</span>
+                            <span class="location-card-info-value">${yearValue}</span>
+                        </div>
+                        <div class="location-card-info-item">
+                            <span class="location-card-info-label">Hours:</span>
+                            <span class="location-card-info-value">${hoursValue}</span>
+                        </div>
+                    </div>
+                `;
                 
-                // Build image gallery HTML
+                // Build image gallery HTML (always reserve photo area)
                 let imageGallery = '';
+                const imageDots = images.map((_, index) => 
+                    `<div class="location-card-image-dot ${index === 0 ? 'active' : ''}" data-index="${index}"></div>`
+                ).join('');
+                
                 if (images.length > 0) {
-                    const imageDots = images.map((_, index) => 
-                        `<div class="location-card-image-dot ${index === 0 ? 'active' : ''}" data-index="${index}"></div>`
-                    ).join('');
-                    
                     imageGallery = `
                         <div class="location-card-image-container" data-location-id="${location.id}">
                             <img src="${images[0]}" alt="${location.name}" class="location-card-image" data-index="0">
@@ -1228,6 +1468,12 @@
                                 <button class="location-card-image-nav next" onclick="event.stopPropagation(); navigateCardImage('${location.id}', 1)">›</button>
                                 <div class="location-card-image-indicator">${imageDots}</div>
                             ` : ''}
+                        </div>
+                    `;
+                } else {
+                    imageGallery = `
+                        <div class="location-card-image-container" data-location-id="${location.id}">
+                            <div class="location-card-image-placeholder"></div>
                         </div>
                     `;
                 }
@@ -1253,8 +1499,8 @@
                 // Click handler for card (but not for image container or edit button)
                 card.querySelector('.location-card-content')?.addEventListener('click', function(e) {
                     if (e.target.classList.contains('location-card-edit-btn')) return;
-                    highlightCard(location.id);
-                    showLocationPopup(location);
+                    // Open detailed view on map (bottom sheet) and center map, like shelter-finder
+                    openLocationDetailFromPopup(location.id);
                 });
                 
                 // Click handler for image to open modal gallery
@@ -1420,6 +1666,27 @@
             }
         }
 
+        function openLocationDetailFromPopup(locationId) {
+            const location = locations.find(loc => loc.id === locationId);
+            if (!location) return;
+
+            // Center map on this location
+            const marker = markers[locationId];
+            if (marker) {
+                const latLng = marker.getLatLng();
+                map.setView(latLng, map.getZoom(), {
+                    animate: true,
+                    duration: 0.5
+                });
+            }
+
+            // Sync list highlight and show the bottom-sheet card
+            highlightCard(locationId);
+            showMobileBottomSheet(location);
+        }
+
+        window.openLocationDetailFromPopup = openLocationDetailFromPopup;
+
         // Show popup on map for location
         function showLocationPopup(location) {
             const marker = markers[location.id];
@@ -1495,6 +1762,16 @@
             setTimeout(() => {
                 sheet.classList.add('active');
                 backdrop.classList.add('active');
+                
+                // On mobile, nudge map so the marker stays visible above the sheet
+                if (window.innerWidth <= 768) {
+                    const marker = markers[location.id];
+                    if (marker && map && map.panBy) {
+                        const sheetHeight = sheet.offsetHeight || (window.innerHeight * 0.4);
+                        const offsetY = sheetHeight * 0.4; // pan map down a bit so marker sits above sheet
+                        map.panBy([0, offsetY], { animate: true, duration: 0.3 });
+                    }
+                }
             }, 10);
             
             // Close popup if open
@@ -1659,6 +1936,8 @@
 
         function createMarkerForLocation(location) {
             const marker = L.marker([location.lat, location.lng]).addTo(map);
+
+            // Click marker: pan and highlight card
             marker.on('click', function() {
                 map.setView([location.lat, location.lng], map.getZoom(), {
                     animate: true,
@@ -1667,22 +1946,87 @@
                 highlightCard(location.id);
             });
 
-            let popupHtml = `
-                <div style="font-family: 'Inter', sans-serif;">
-                    <strong>${location.name}</strong><br>
-                    <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: #666;">${location.description || ''}</p>
-            `;
-            if (location.address || location.yearAcquired || location.hours) {
-                popupHtml += '<div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid #e0e0e0; font-size: 0.85rem;">';
-                if (location.address) popupHtml += `<div style="margin-bottom: 0.25rem;"><span style="font-weight: 600;">Address:</span> ${location.address.replace(/\n/g, '<br>')}</div>`;
-                if (location.yearAcquired) popupHtml += `<div style="margin-bottom: 0.25rem;"><span style="font-weight: 600;">Year Acquired:</span> ${location.yearAcquired}</div>`;
-                if (location.hours) popupHtml += `<div><span style="font-weight: 600;">Hours:</span> ${location.hours}</div>`;
+            // Build popup with photo + text
+            const images = location.images || (location.image ? [location.image] : []);
+            const name = location.name || '';
+            const description = location.description || '';
+            const addressHtml = location.address ? location.address.replace(/\n/g, '<br>') : null;
+
+            let popupHtml =
+                '<div class="popup-location" ' +
+                'style="font-family: Inter, sans-serif; max-width: 260px;">';
+
+            if (images.length > 0) {
+                popupHtml +=
+                    '<div class="popup-image-container" style="margin-bottom: 0.5rem; cursor: pointer; position: relative;">' +
+                    '<img src="' + images[0] + '" alt="' + name + '" ' +
+                    'style="width: 100%; border-radius: 8px; display: block; object-fit: cover; max-height: 160px;">';
+
+                if (images.length > 1) {
+                    popupHtml +=
+                        '<div style="position: absolute; bottom: 8px; right: 8px; ' +
+                        'background: rgba(0,0,0,0.65); color: #fff; padding: 0.2rem 0.5rem; border-radius: 4px; ' +
+                        'font-size: 0.75rem;">' + images.length + ' photos</div>';
+                }
+
                 popupHtml += '</div>';
             }
+
+            popupHtml +=
+                '<strong>' + name + '</strong><br>' +
+                '<p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: #666;">' + description + '</p>';
+
+            if (addressHtml || location.yearAcquired || location.hours) {
+                popupHtml += '<div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid #e0e0e0; font-size: 0.85rem;">';
+                if (addressHtml) {
+                    popupHtml +=
+                        '<div style="margin-bottom: 0.25rem;"><span style="font-weight: 600;">Address:</span> ' +
+                        addressHtml + '</div>';
+                }
+                if (location.yearAcquired) {
+                    popupHtml +=
+                        '<div style="margin-bottom: 0.25rem;"><span style="font-weight: 600;">Year Acquired:</span> ' +
+                        location.yearAcquired + '</div>';
+                }
+                if (location.hours) {
+                    popupHtml +=
+                        '<div><span style="font-weight: 600;">Hours:</span> ' +
+                        location.hours + '</div>';
+                }
+                popupHtml += '</div>';
+            }
+
             popupHtml += '</div>';
             marker.bindPopup(popupHtml);
 
-            marker.on('popupopen', function() {
+            // Desktop: open popup on hover
+            marker.on('mouseover', function() {
+                if (window.innerWidth > 768) {
+                    marker.openPopup();
+                }
+            });
+
+            // Popup interactions
+            marker.on('popupopen', function(e) {
+                const popupEl = e.popup && e.popup.getElement ? e.popup.getElement() : null;
+
+                // Desktop: clicking popup opens detail bottom sheet + syncs with list
+                if (popupEl && window.innerWidth > 768) {
+                    popupEl.addEventListener('click', function(ev) {
+                        ev.stopPropagation();
+                        openLocationDetailFromPopup(location.id);
+                    });
+
+                    const imgContainer = popupEl.querySelector('.popup-image-container');
+                    if (imgContainer) {
+                        imgContainer.addEventListener('click', function(ev) {
+                            ev.stopPropagation();
+                            openGalleryModal(location.id, 0);
+                        });
+                    }
+                }
+
+                // Mobile: still use bottom sheet instead of popup content
                 if (window.innerWidth <= 768) {
                     showMobileBottomSheet(location);
                 }
@@ -1711,13 +2055,47 @@
             console.log('Supabase:', t.ok ? t.message : 'Connection failed: ' + t.message);
         })();
 
+        function setViewMode(mode) {
+            const sidebar = document.getElementById('location-sidebar');
+            const mapBtn = document.getElementById('map-view-btn');
+            const listBtn = document.getElementById('list-view-btn');
+            if (!sidebar || !mapBtn || !listBtn) return;
+
+            if (mode === 'list') {
+                sidebar.style.display = 'flex';
+                mapBtn.classList.remove('active');
+                listBtn.classList.add('active');
+            } else {
+                sidebar.style.display = 'none';
+                mapBtn.classList.add('active');
+                listBtn.classList.remove('active');
+            }
+        }
+
+        window.setViewMode = setViewMode;
+
+        function toggleLegend() {
+            const legend = document.getElementById('neighborhood-legend');
+            const items = document.getElementById('legend-items');
+            const icon = document.getElementById('legend-toggle-icon');
+            if (!legend || !items || !icon) return;
+
+            const isCollapsed = legend.classList.toggle('collapsed');
+            items.style.display = isCollapsed ? 'none' : 'block';
+            icon.textContent = isCollapsed ? '▸' : '▾';
+        }
+
+        window.toggleLegend = toggleLegend;
+
         function closeSidebar() {
-            document.getElementById('location-sidebar').classList.remove('active');
+            setViewMode('map');
         }
 
         function toggleSidebar() {
             const sidebar = document.getElementById('location-sidebar');
-            sidebar.classList.toggle('active');
+            if (!sidebar) return;
+            const isHidden = sidebar.style.display === 'none' || getComputedStyle(sidebar).display === 'none';
+            setViewMode(isHidden ? 'list' : 'map');
         }
 
         function toggleLocationForm(mode, location) {
