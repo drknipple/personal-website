@@ -1,5 +1,5 @@
 import { subscribe, setLocations, setViewMode, selectLocation, getState, setLoading, setError } from './state.js';
-import { loadLocations, saveLocation, geocodeAddress } from './data.js';
+import { loadLocations, saveLocation, geocodeAddress, uploadImage, deleteImage } from './data.js';
 import { initMap, syncMarkers, focusOnLocation, resizeMap, openMarkerPopup } from './mapView.js';
 import { initListView, renderList } from './listView.js';
 import { initDetailView, openForLocation, openForNewLocation, openForEdit, openGalleryForLocation, close as closeDetail } from './detailView.js';

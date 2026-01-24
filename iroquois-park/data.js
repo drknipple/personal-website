@@ -258,3 +258,125 @@ export async function geocodeAddress(address) {
     }
 }
 
+// Image upload to Supabase Storage
+const STORAGE_BUCKET = 'location-images';
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+
+function generateUniqueFilename(originalName) {
+    const ext = originalName.split('.').pop();
+    const uuid = crypto.randomUUID ? crypto.randomUUID() : 
+        `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    return `${uuid}.${ext}`;
+}
+
+async function resizeImage(file, maxWidth = 1920, maxHeight = 1920, quality = 0.85) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                let width = img.width;
+                let height = img.height;
+
+                if (width > maxWidth || height > maxHeight) {
+                    const ratio = Math.min(maxWidth / width, maxHeight / height);
+                    width = width * ratio;
+                    height = height * ratio;
+                }
+
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                canvas.toBlob(
+                    (blob) => {
+                        if (blob) {
+                            resolve(new File([blob], file.name, { type: 'image/jpeg', lastModified: Date.now() }));
+                        } else {
+                            reject(new Error('Failed to resize image'));
+                        }
+                    },
+                    'image/jpeg',
+                    quality
+                );
+            };
+            img.onerror = reject;
+            img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+export async function uploadImage(file) {
+    if (!supabaseClient) {
+        throw new Error('Supabase not configured. Cannot upload image.');
+    }
+
+    // Validate file type
+    if (!ALLOWED_TYPES.includes(file.type)) {
+        throw new Error('Invalid file type. Please upload a JPEG, PNG, or WebP image.');
+    }
+
+    // Validate file size
+    if (file.size > MAX_FILE_SIZE) {
+        throw new Error(`File is too large. Maximum size is ${MAX_FILE_SIZE / 1024 / 1024}MB.`);
+    }
+
+    try {
+        // Resize/optimize image before upload
+        const optimizedFile = await resizeImage(file);
+
+        // Generate unique filename
+        const filename = generateUniqueFilename(file.name);
+        const filePath = `${filename}`;
+
+        // Upload to Supabase Storage
+        const { data, error } = await supabaseClient.storage
+            .from(STORAGE_BUCKET)
+            .upload(filePath, optimizedFile, {
+                cacheControl: '3600',
+                upsert: false
+            });
+
+        if (error) {
+            throw error;
+        }
+
+        // Get public URL
+        const { data: urlData } = supabaseClient.storage
+            .from(STORAGE_BUCKET)
+            .getPublicUrl(filePath);
+
+        return urlData.publicUrl;
+    } catch (err) {
+        console.error('[data] Error uploading image:', err);
+        throw new Error(err.message || 'Failed to upload image.');
+    }
+}
+
+export async function deleteImage(imageUrl) {
+    if (!supabaseClient || !imageUrl) return;
+
+    try {
+        // Extract filename from URL
+        const urlParts = imageUrl.split('/');
+        const filename = urlParts[urlParts.length - 1].split('?')[0];
+
+        if (!filename) return;
+
+        const { error } = await supabaseClient.storage
+            .from(STORAGE_BUCKET)
+            .remove([filename]);
+
+        if (error) {
+            console.error('[data] Error deleting image:', error);
+        }
+    } catch (err) {
+        console.error('[data] Error deleting image:', err);
+    }
+}
+

@@ -1,5 +1,7 @@
 // Detail sheet / bottom sheet + gallery modal
 
+import { uploadImage as uploadImageToStorage, deleteImage as deleteImageFromStorage } from './data.js';
+
 let sheetEl = null;
 let sheetBackdropEl = null;
 let sheetPanelEl = null;
@@ -21,6 +23,9 @@ let galleryIndex = 0;
 
 let onCloseCallback = null;
 let onSaveCallback = null;
+
+// Track images in edit form
+let formImages = []; // Array of { url, file?, isNew?, toDelete? }
 
 export function initDetailView(options) {
     const { onClose, onSaveLocation } = options || {};
@@ -281,6 +286,9 @@ function openEditForm(location, isNew = false) {
         false
     );
 
+    // Image upload section
+    const imageField = createImageUploadField(location.images || []);
+
     const hint = document.createElement('p');
     hint.className = 'location-form__hint';
     hint.textContent = 'Provide either a street address or latitude & longitude. Address will be geocoded automatically.';
@@ -315,6 +323,7 @@ function openEditForm(location, isNew = false) {
 
     form.appendChild(nameField);
     form.appendChild(descField);
+    form.appendChild(imageField);
     form.appendChild(addressField);
     form.appendChild(latField);
     form.appendChild(lngField);
@@ -356,6 +365,31 @@ function openEditForm(location, isNew = false) {
         saveBtn.textContent = 'Saving...';
 
         try {
+            saveBtn.textContent = 'Uploading images...';
+
+            // Upload new images first
+            const imageUrls = [];
+            for (const img of formImages) {
+                if (img.toDelete) continue; // Skip images marked for deletion
+                if (img.file) {
+                    // New file to upload
+                    const url = await uploadImageToStorage(img.file);
+                    imageUrls.push(url);
+                } else if (img.url) {
+                    // Existing image, keep it
+                    imageUrls.push(img.url);
+                }
+            }
+
+            // Delete removed images
+            for (const img of formImages) {
+                if (img.toDelete && img.url) {
+                    await deleteImageFromStorage(img.url);
+                }
+            }
+
+            saveBtn.textContent = 'Saving...';
+
             const input = {
                 id: location.id,
                 name,
@@ -363,7 +397,7 @@ function openEditForm(location, isNew = false) {
                 address: address || null,
                 yearAcquired: yearAcquired || null,
                 hours: hours || null,
-                images: location.images || [],
+                images: imageUrls,
                 lat: latValue ? parseFloat(latValue) : location.lat,
                 lng: lngValue ? parseFloat(lngValue) : location.lng,
                 addressForGeocode: address,
@@ -425,6 +459,97 @@ function createTextareaField(labelText, id, value) {
 
     field.appendChild(label);
     field.appendChild(textarea);
+    return field;
+}
+
+function createImageUploadField(existingImages) {
+    const field = document.createElement('div');
+    field.className = 'location-form__field';
+
+    const label = document.createElement('label');
+    label.className = 'location-form__label';
+    label.textContent = 'Photos';
+
+    const container = document.createElement('div');
+    container.className = 'location-form__images';
+
+    // Initialize formImages with existing images
+    formImages = (existingImages || []).map(url => ({ url }));
+
+    const previewContainer = document.createElement('div');
+    previewContainer.className = 'location-form__image-previews';
+
+    function renderPreviews() {
+        previewContainer.innerHTML = '';
+        formImages.forEach((img, index) => {
+            if (img.toDelete) return;
+
+            const preview = document.createElement('div');
+            preview.className = 'location-form__image-preview';
+            if (img.url) {
+                const imgEl = document.createElement('img');
+                imgEl.src = img.url;
+                imgEl.alt = 'Preview';
+                preview.appendChild(imgEl);
+            } else if (img.file) {
+                const imgEl = document.createElement('img');
+                imgEl.src = URL.createObjectURL(img.file);
+                imgEl.alt = 'Preview';
+                preview.appendChild(imgEl);
+            }
+
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'location-form__image-remove';
+            removeBtn.textContent = '×';
+            removeBtn.addEventListener('click', () => {
+                if (img.url) {
+                    // Mark existing image for deletion
+                    img.toDelete = true;
+                } else {
+                    // Remove new file
+                    formImages.splice(index, 1);
+                }
+                renderPreviews();
+            });
+            preview.appendChild(removeBtn);
+            previewContainer.appendChild(preview);
+        });
+    }
+
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.id = 'location-images-input';
+    fileInput.accept = 'image/jpeg,image/jpg,image/png,image/webp';
+    fileInput.multiple = true;
+    fileInput.className = 'location-form__file-input';
+    fileInput.addEventListener('change', (e) => {
+        const files = Array.from(e.target.files);
+        files.forEach(file => {
+            formImages.push({ file });
+        });
+        renderPreviews();
+        fileInput.value = ''; // Reset input
+    });
+
+    const fileLabel = document.createElement('label');
+    fileLabel.className = 'location-form__file-label';
+    fileLabel.htmlFor = fileInput.id;
+    fileLabel.textContent = '+ Add photos';
+    fileLabel.addEventListener('click', (e) => {
+        e.preventDefault();
+        fileInput.click();
+    });
+
+    container.appendChild(previewContainer);
+    container.appendChild(fileLabel);
+    container.appendChild(fileInput);
+
+    field.appendChild(label);
+    field.appendChild(container);
+
+    renderPreviews();
+
     return field;
 }
 
