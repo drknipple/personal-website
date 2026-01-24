@@ -373,9 +373,53 @@ export function initMap(options) {
         });
 
         // Desktop hover: open Leaflet popup
+        let popupCloseTimeout = null;
+        
         marker.on('mouseover', () => {
             if (!isTouchDevice && window.innerWidth > 768) {
+                if (popupCloseTimeout) {
+                    clearTimeout(popupCloseTimeout);
+                    popupCloseTimeout = null;
+                }
                 marker.openPopup();
+            }
+        });
+
+        // Desktop: close popup when mouse leaves marker
+        marker.on('mouseout', () => {
+            if (!isTouchDevice && window.innerWidth > 768) {
+                // Small delay to allow moving from marker to popup
+                popupCloseTimeout = setTimeout(() => {
+                    marker.closePopup();
+                    popupCloseTimeout = null;
+                }, 150);
+            }
+        });
+
+        // Keep popup open when mouse enters popup, close when leaving
+        marker.on('popupopen', () => {
+            if (!isTouchDevice && window.innerWidth > 768) {
+                const popup = marker.getPopup();
+                if (popup) {
+                    const popupEl = popup.getElement();
+                    if (popupEl) {
+                        // Cancel close if mouse enters popup
+                        popupEl.addEventListener('mouseenter', () => {
+                            if (popupCloseTimeout) {
+                                clearTimeout(popupCloseTimeout);
+                                popupCloseTimeout = null;
+                            }
+                        });
+
+                        // Close when mouse leaves popup
+                        popupEl.addEventListener('mouseleave', () => {
+                            popupCloseTimeout = setTimeout(() => {
+                                marker.closePopup();
+                                popupCloseTimeout = null;
+                            }, 150);
+                        });
+                    }
+                }
             }
         });
     }

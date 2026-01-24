@@ -15,6 +15,16 @@ if (typeof window !== 'undefined' && window.supabase && SUPABASE_URL && SUPABASE
 
 // Local seed locations used only if Supabase is unavailable.
 // Image paths reuse the existing iroquois-park assets via a relative path.
+//
+// IMPORTANT: Image folder mappings for locations:
+// - Davis Family Estate → ./images/davis/
+// - Iroquois Park → ./images/iroquois-park/
+// - Iroquois Amphitheater → ./images/ampitheater/
+// - Iroquois Park Disc Golf → ./images/disc/
+// - Iroquois Park Overlook → ./images/overlook/
+// - Eatherly Family Estate → ./images/meadowbrook/
+//
+// When adding/editing locations in Supabase, ensure image paths follow this pattern.
 const SEED_LOCATIONS = [
     {
         id: 'seed-iroquois-park',
@@ -85,6 +95,30 @@ const SEED_LOCATIONS = [
             './images/loomhouse/330px-Wistaria_Cabin.jpeg'
         ],
         address: '328 Kenwood Hill Rd.\nLouisville, KY 40214',
+        yearAcquired: null,
+        hours: null
+    },
+    {
+        id: 'seed-davis-estate',
+        name: 'Davis Family Estate',
+        description: '',
+        lat: 0,
+        lng: 0,
+        images: [], // Images should be in ./images/davis/ folder
+        address: null,
+        yearAcquired: null,
+        hours: null
+    },
+    {
+        id: 'seed-eatherly-estate',
+        name: 'Eatherly Family Estate',
+        description: '',
+        lat: 0,
+        lng: 0,
+        images: [
+            './images/meadowbrook/Screenshot 2026-01-23 at 9.04.14 PM.png'
+        ],
+        address: null,
         yearAcquired: null,
         hours: null
     }

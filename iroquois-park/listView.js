@@ -179,8 +179,21 @@ export function renderList(locations, selectedLocationId) {
         card.appendChild(imageContainer);
         card.appendChild(body);
 
-        card.addEventListener('click', () => {
-            if (typeof onLocationSelected === 'function') {
+        // Card click behavior: desktop = "View on map", mobile = open detail sheet
+        card.addEventListener('click', (e) => {
+            // Don't trigger if clicking on image container or edit button
+            if (e.target.closest('.location-card__image-container') || 
+                e.target.closest('.location-card__edit-btn') ||
+                e.target.closest('.location-card__view-map-btn')) {
+                return;
+            }
+            
+            const isDesktop = window.innerWidth > 768;
+            if (isDesktop && typeof onViewOnMap === 'function') {
+                // Desktop: behave like "View on map" button
+                onViewOnMap(location.id);
+            } else if (typeof onLocationSelected === 'function') {
+                // Mobile: open detail sheet
                 onLocationSelected(location.id);
             }
         });
