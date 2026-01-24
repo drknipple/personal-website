@@ -10,6 +10,8 @@ on:
       - main
     paths:
       - 'shelter-finder/**'
+      - 'wip/**'
+      - 'iroquois-park/**'
       - 'index.html'
       - 'index2.html'
       - 'main.js'
@@ -56,6 +58,8 @@ jobs:
           cp CNAME deploy/ 2>/dev/null || true
           cp -r images deploy/ 2>/dev/null || true
           cp -r pizza deploy/ 2>/dev/null || true
+          cp -r wip deploy/ 2>/dev/null || true
+          cp -r iroquois-park deploy/ 2>/dev/null || true
           cp -r shelter-finder/dist/* deploy/shelter-finder/
           touch deploy/.nojekyll
 
