@@ -866,6 +866,98 @@ a {
     .bottom-nav {
         height: 56px;
     }
+
+    /* Increase font sizes on mobile for better readability */
+    .footer-header {
+        font-size: 1rem;
+    }
+
+    .list-view__title {
+        font-size: 1.25rem;
+    }
+
+    .list-view__subtitle {
+        font-size: 0.95rem;
+    }
+
+    .list-view__add-btn {
+        font-size: 0.95rem;
+    }
+
+    .location-card__title {
+        font-size: 1.1rem;
+    }
+
+    .location-card__description {
+        font-size: 0.95rem;
+    }
+
+    .location-card__meta {
+        font-size: 0.85rem;
+    }
+
+    .location-card__edit-btn,
+    .location-card__view-map-btn {
+        font-size: 0.9rem;
+    }
+
+    .detail-sheet__title {
+        font-size: 1.1rem;
+    }
+
+    .detail-text__description {
+        font-size: 1rem;
+    }
+
+    .detail-text__meta {
+        font-size: 0.9rem;
+    }
+
+    .detail-text__edit-btn {
+        font-size: 0.9rem;
+    }
+
+    .location-form__label {
+        font-size: 0.9rem;
+    }
+
+    .location-form__input,
+    .location-form__textarea {
+        font-size: 0.95rem;
+    }
+
+    .location-form__hint {
+        font-size: 0.85rem;
+    }
+
+    .location-form__error {
+        font-size: 0.9rem;
+    }
+
+    .location-form__save,
+    .location-form__cancel {
+        font-size: 0.9rem;
+    }
+
+    .popup-location {
+        font-size: 0.95rem;
+    }
+
+    .popup-location__more-btn {
+        font-size: 0.95rem;
+    }
+
+    .neighborhood-legend__toggle {
+        font-size: 0.9rem;
+    }
+
+    .neighborhood-legend__item {
+        font-size: 0.9rem;
+    }
+
+    .bottom-nav__btn {
+        font-size: 1rem;
+    }
 }
 
 .bottom-nav__btn {
