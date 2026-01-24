@@ -1,0 +1,47 @@
+<svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background image reference (fallback) -->
+  <defs>
+    <pattern id="bgImage" patternUnits="userSpaceOnUse" width="800" height="600">
+      <image href="../images/sticker.png" x="0" y="0" width="800" height="600" opacity="0.3"/>
+    </pattern>
+  </defs>
+  
+  <!-- Geometric shapes with color matching -->
+  <!-- Red shapes -->
+  <path class="color-shape" data-color="#e74c3c" d="M50 100 L150 80 L140 180 L40 200 Z" fill="#e74c3c" opacity="0.7"/>
+  <path class="color-shape" data-color="#e74c3c" d="M650 120 L750 100 L740 200 L640 220 Z" fill="#e74c3c" opacity="0.6"/>
+  
+  <!-- Orange shapes -->
+  <path class="color-shape" data-color="#f39c12" d="M120 200 L220 180 L210 280 L110 300 Z" fill="#f39c12" opacity="0.7"/>
+  <path class="color-shape" data-color="#f39c12" d="M580 250 L680 230 L670 330 L570 350 Z" fill="#f39c12" opacity="0.6"/>
+  
+  <!-- Yellow shapes -->
+  <path class="color-shape" data-color="#f1c40f" d="M200 300 L300 280 L290 380 L190 400 Z" fill="#f1c40f" opacity="0.7"/>
+  <path class="color-shape" data-color="#f1c40f" d="M500 180 L600 160 L590 260 L490 280 Z" fill="#f1c40f" opacity="0.6"/>
+  
+  <!-- Green shapes -->
+  <path class="color-shape" data-color="#2ecc71" d="M280 400 L380 380 L370 480 L270 500 Z" fill="#2ecc71" opacity="0.7"/>
+  <path class="color-shape" data-color="#2ecc71" d="M420 320 L520 300 L510 400 L410 420 Z" fill="#2ecc71" opacity="0.6"/>
+  
+  <!-- Blue shapes -->
+  <path class="color-shape" data-color="#3498db" d="M360 500 L460 480 L450 580 L350 600 Z" fill="#3498db" opacity="0.7"/>
+  <path class="color-shape" data-color="#3498db" d="M340 100 L440 80 L430 180 L330 200 Z" fill="#3498db" opacity="0.6"/>
+  
+  <!-- Purple shapes -->
+  <path class="color-shape" data-color="#9b59b6" d="M440 200 L540 180 L530 280 L430 300 Z" fill="#9b59b6" opacity="0.7"/>
+  <path class="color-shape" data-color="#9b59b6" d="M300 50 L400 30 L390 130 L290 150 Z" fill="#9b59b6" opacity="0.6"/>
+  
+  <!-- Additional overlapping shapes for more visual interest -->
+  <path class="color-shape" data-color="#e74c3c" d="M100 350 L200 330 L190 430 L90 450 Z" fill="#e74c3c" opacity="0.5"/>
+  <path class="color-shape" data-color="#f39c12" d="M700 350 L800 330 L790 430 L690 450 Z" fill="#f39c12" opacity="0.5"/>
+  <path class="color-shape" data-color="#f1c40f" d="M150 50 L250 30 L240 130 L140 150 Z" fill="#f1c40f" opacity="0.5"/>
+  <path class="color-shape" data-color="#2ecc71" d="M600 450 L700 430 L690 530 L590 550 Z" fill="#2ecc71" opacity="0.5"/>
+  <path class="color-shape" data-color="#3498db" d="M50 250 L150 230 L140 330 L40 350 Z" fill="#3498db" opacity="0.5"/>
+  <path class="color-shape" data-color="#9b59b6" d="M750 450 L800 430 L790 530 L740 550 Z" fill="#9b59b6" opacity="0.5"/>
+  
+  <!-- Central area for the main image content -->
+  <rect x="200" y="150" width="400" height="300" rx="20" fill="url(#bgImage)" opacity="0.5"/>
+  
+  <!-- Overlay the actual PNG image in the center -->
+  <image href="../images/sticker.png" x="200" y="150" width="400" height="300" preserveAspectRatio="xMidYMid meet"/>
+</svg>

@@ -5,7 +5,6 @@ node_modules/
 my-favorite-places-learning/
 shelter-sfproject/
 vite/
-wip/
 
 # Root package files – deploy uses only shelter-finder; keep locally if needed
 package.json
