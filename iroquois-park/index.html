@@ -1,0 +1,2014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Iroquois Park - A historic neighborhood in Louisville, Kentucky">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="icon" href="../images/bee.png" type="image/png">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <title>Iroquois Park - Louisville, KY</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        .discovery-layout {
+            display: flex;
+            height: 100vh;
+            padding-top: 40px;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        /* Map takes left portion */
+        .map-wrapper {
+            flex: 1;
+            position: relative;
+            height: calc(100vh - 40px);
+        }
+
+        @media (min-width: 769px) {
+            .map-wrapper {
+                width: calc(100% - 400px);
+            }
+        }
+
+        #iroquois-map {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Footer-style header */
+        .footer-header {
+            width: 100%;
+            text-align: center;
+            padding: 8px 0;
+            background: #d7e8ec;
+            color: rgb(3, 3, 66);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 2000;
+            box-sizing: border-box;
+            line-height: 1.4;
+            min-height: 30px;
+        }
+
+        .footer-header:hover {
+            background: #ccecf2;
+        }
+
+        .footer-header a {
+            color: rgb(3, 3, 66);
+            text-decoration: none;
+        }
+
+        .footer-header a:hover {
+            color: rgb(97, 97, 170);
+        }
+
+        /* Sidebar for location list - always visible on desktop/tablet */
+        .location-sidebar {
+            width: 400px;
+            height: calc(100vh - 40px);
+            background: white;
+            box-shadow: -2px 0 20px rgba(0, 0, 0, 0.1);
+            z-index: 999;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (max-width: 768px) {
+            .location-sidebar {
+                display: none; /* Hide sidebar on mobile */
+            }
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e0e0e0;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 0;
+        }
+
+        .close-sidebar {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .close-sidebar {
+                display: block;
+                position: absolute;
+                top: 1.5rem;
+                right: 1.5rem;
+                background: none;
+                border: none;
+                font-size: 1.5rem;
+                cursor: pointer;
+                color: #666;
+                padding: 0;
+                width: 30px;
+                height: 30px;
+            }
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0;
+        }
+
+        /* Location cards */
+        .location-card {
+            padding: 0;
+            border-bottom: 1px solid #e0e0e0;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            overflow: hidden;
+        }
+
+        .location-card:hover {
+            background-color: #f8f8f8;
+        }
+
+        .location-card.active {
+            background-color: #e8f4f8;
+            border-left: 4px solid #2892CF;
+        }
+
+        .location-card-image-container {
+            position: relative;
+            width: 100%;
+            height: 180px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .location-card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: opacity 0.3s ease;
+        }
+
+        .location-card-image-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #1a1a1a;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .location-card-image-container:hover .location-card-image-nav {
+            opacity: 1;
+        }
+
+        .location-card-image-nav.prev {
+            left: 10px;
+        }
+
+        .location-card-image-nav.next {
+            right: 10px;
+        }
+
+        .location-card-image-nav:hover {
+            background: rgba(255, 255, 255, 1);
+        }
+
+        .location-card-image-nav:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .location-card-image-indicator {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 6px;
+            z-index: 10;
+        }
+
+        .location-card-image-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .location-card-image-dot.active {
+            background: rgba(255, 255, 255, 1);
+            width: 20px;
+            border-radius: 3px;
+        }
+
+        .location-card-content {
+            padding: 1.5rem;
+        }
+
+        .location-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .location-card p {
+            color: #666;
+            line-height: 1.5;
+            margin: 0 0 1rem 0;
+            font-size: 0.9rem;
+        }
+
+        .location-card-info {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .location-card-info-item {
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .location-card-info-label {
+            font-weight: 600;
+            color: #1a1a1a;
+            display: inline-block;
+            min-width: 100px;
+        }
+
+        .location-card-info-value {
+            color: #666;
+        }
+
+        .location-card-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .location-card-edit-btn {
+            background: #f0f0f0;
+            border: none;
+            padding: 0.4rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            color: #444;
+            transition: background 0.2s ease;
+        }
+
+        .location-card-edit-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .sidebar-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .add-location-btn {
+            background: #2892CF;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.2s ease;
+        }
+
+        .add-location-btn:hover {
+            background: #1e7bb8;
+        }
+
+        .location-form-panel {
+            padding: 1.25rem;
+            border-bottom: 1px solid #e0e0e0;
+            background: #f8f9fa;
+        }
+
+        .location-form-panel.hidden {
+            display: none;
+        }
+
+        .location-form-panel h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0 0 1rem 0;
+            color: #1a1a1a;
+        }
+
+        .location-form-panel label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #444;
+            margin-bottom: 0.35rem;
+        }
+
+        .location-form-panel input,
+        .location-form-panel textarea {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            font-family: inherit;
+            box-sizing: border-box;
+        }
+
+        .location-form-panel textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .location-form-panel .form-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .location-form-panel .form-actions button {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+        }
+
+        .location-form-panel .form-save {
+            background: #2892CF;
+            color: white;
+        }
+
+        .location-form-panel .form-save:hover {
+            background: #1e7bb8;
+        }
+
+        .location-form-panel .form-cancel {
+            background: #e0e0e0;
+            color: #444;
+        }
+
+        .location-form-panel .form-cancel:hover {
+            background: #d0d0d0;
+        }
+
+        .location-form-hint {
+            font-size: 0.8rem;
+            color: #666;
+            margin: -0.5rem 0 1rem 0;
+        }
+
+        .location-form-error {
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            background: #fee;
+            color: #c33;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+        }
+
+        .location-form-error.hidden {
+            display: none;
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Neighborhood legend */
+        .neighborhood-legend {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            max-width: 300px;
+        }
+
+        .legend-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            color: #1a1a1a;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 2px solid rgba(0, 0, 0, 0.1);
+        }
+
+        /* Map controls styling */
+        .leaflet-control-zoom {
+            border: none !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        .leaflet-control-zoom a {
+            background: white !important;
+            color: #1a1a1a !important;
+            border: none !important;
+        }
+
+        .leaflet-control-zoom a:hover {
+            background: #f5f5f5 !important;
+        }
+
+        /* Map style toggle */
+        .map-style-toggle {
+            position: absolute;
+            bottom: 100px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .map-style-toggle-btn {
+            background: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .map-style-toggle-btn:hover {
+            background: #f5f5f5;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .map-style-toggle-btn .icon {
+            font-size: 1.1rem;
+        }
+
+        /* Add marker button */
+        .add-marker-control {
+            position: absolute;
+            bottom: 100px;
+            left: 20px;
+            z-index: 1000;
+        }
+
+        .add-marker-btn {
+            background: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .add-marker-btn:hover {
+            background: #f5f5f5;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .add-marker-btn.active {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .add-marker-btn.active:hover {
+            background: #c0392b;
+        }
+
+        /* Empty state */
+        .empty-state {
+            padding: 3rem 1.5rem;
+            text-align: center;
+            color: #999;
+        }
+
+        .empty-state p {
+            font-size: 0.9rem;
+        }
+
+        /* Mobile bottom sheet */
+        .mobile-bottom-sheet {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+            z-index: 2000;
+            max-height: 80vh;
+            overflow-y: auto;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .mobile-bottom-sheet.active {
+            transform: translateY(0);
+        }
+
+        .mobile-bottom-sheet-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 1;
+        }
+
+        .mobile-bottom-sheet-header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 0;
+        }
+
+        .close-bottom-sheet {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-bottom-sheet-content {
+            padding: 1.5rem;
+        }
+
+        .mobile-bottom-sheet-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .mobile-bottom-sheet-content h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .mobile-bottom-sheet-content p {
+            color: #666;
+            line-height: 1.6;
+            margin: 0 0 1rem 0;
+        }
+
+        /* Backdrop overlay */
+        .mobile-sheet-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .mobile-sheet-backdrop.active {
+            opacity: 1;
+        }
+
+        @media (min-width: 769px) {
+            .mobile-bottom-sheet {
+                display: none !important;
+            }
+            .mobile-sheet-backdrop {
+                display: none !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .neighborhood-legend {
+                max-width: 200px;
+                padding: 1rem;
+            }
+
+            .map-style-toggle {
+                bottom: 160px;
+                right: 10px;
+            }
+
+            .map-style-toggle-btn {
+                padding: 0.6rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            .add-marker-control {
+                bottom: 160px;
+                left: 10px;
+            }
+        }
+
+        /* Modal Gallery */
+        .gallery-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gallery-modal.active {
+            display: flex;
+        }
+
+        .gallery-modal-content {
+            position: relative;
+            max-width: 90vw;
+            max-height: 90vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gallery-modal-image {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+        }
+
+        .gallery-modal-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #1a1a1a;
+            z-index: 10;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            transition: background 0.2s ease;
+        }
+
+        .gallery-modal-nav:hover {
+            background: rgba(255, 255, 255, 1);
+        }
+
+        .gallery-modal-nav.prev {
+            left: 20px;
+        }
+
+        .gallery-modal-nav.next {
+            right: 20px;
+        }
+
+        .gallery-modal-nav:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .gallery-modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #1a1a1a;
+            z-index: 10;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .gallery-modal-close:hover {
+            background: rgba(255, 255, 255, 1);
+        }
+
+        .gallery-modal-counter {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Footer-style header -->
+    <div class="footer-header">A Neighborhood Love Letter <a href="../index.html">By Eric</a></div>
+
+    <div class="discovery-layout">
+        <!-- Map -->
+        <div class="map-wrapper">
+            <div id="iroquois-map"></div>
+            
+            <!-- Add Marker Button -->
+            <div class="add-marker-control">
+                <button class="add-marker-btn" id="add-marker-btn" onclick="enableAddMarker()">Add Marker</button>
+            </div>
+
+            <!-- Map Style Toggle -->
+            <div class="map-style-toggle">
+                <button class="map-style-toggle-btn" id="map-style-toggle-btn" onclick="toggleMapStyle()">
+                    <span class="icon">🛰️</span> Satellite
+                </button>
+            </div>
+
+            <!-- Neighborhood Legend -->
+            <div class="neighborhood-legend">
+                <div class="legend-title">Neighborhoods</div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: rgba(155, 89, 182, 0.3); border-color: #9b59b6;"></div>
+                    <span>Beechmont</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: rgba(233, 30, 99, 0.3); border-color: #e91e63;"></div>
+                    <span>Southside</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: rgba(243, 156, 18, 0.3); border-color: #f39c12;"></div>
+                    <span>Southland Park</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: rgba(26, 188, 156, 0.3); border-color: #1abc9c;"></div>
+                    <span>Kenwood Hills</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: rgba(52, 152, 219, 0.3); border-color: #3498db;"></div>
+                    <span>Iroquois West</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Location Sidebar -->
+        <div class="location-sidebar" id="location-sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-header-row">
+                    <h2>Locations</h2>
+                    <button class="add-location-btn" id="add-location-btn" onclick="toggleLocationForm('add')">Add Location</button>
+                    <button class="close-sidebar" onclick="closeSidebar()">×</button>
+                </div>
+            </div>
+            <div class="location-form-panel hidden" id="location-form-panel">
+                <h3 id="location-form-title">Add Location</h3>
+                <form id="location-form" onsubmit="handleLocationSubmit(event)">
+                    <input type="hidden" id="location-form-id" value="">
+                    <label for="location-form-name">Name</label>
+                    <input type="text" id="location-form-name" required placeholder="Location name">
+                    <label for="location-form-description">Description</label>
+                    <textarea id="location-form-description" placeholder="Description"></textarea>
+                    <label for="location-form-address">Street address</label>
+                    <input type="text" id="location-form-address" placeholder="e.g. 5216 New Cut Rd, Louisville KY">
+                    <p class="location-form-hint">Or enter coordinates below (used if address is empty)</p>
+                    <label for="location-form-lat">Latitude</label>
+                    <input type="number" id="location-form-lat" step="any" placeholder="e.g. 38.16125">
+                    <label for="location-form-lng">Longitude</label>
+                    <input type="number" id="location-form-lng" step="any" placeholder="e.g. -85.78630">
+                    <div class="location-form-error hidden" id="location-form-error"></div>
+                    <div class="form-actions">
+                        <button type="submit" class="form-save" id="location-form-submit">Save</button>
+                        <button type="button" class="form-cancel" onclick="cancelLocationForm()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+            <div class="sidebar-content" id="sidebar-content">
+                <!-- Location cards will be dynamically generated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Sheet -->
+    <div class="mobile-sheet-backdrop" id="mobile-sheet-backdrop" onclick="closeMobileBottomSheet()"></div>
+    <div class="mobile-bottom-sheet" id="mobile-bottom-sheet">
+        <div class="mobile-bottom-sheet-header">
+            <h2 id="mobile-sheet-title">Location Details</h2>
+            <button class="close-bottom-sheet" onclick="closeMobileBottomSheet()">×</button>
+        </div>
+        <div class="mobile-bottom-sheet-content" id="mobile-sheet-content">
+            <!-- Content will be dynamically generated -->
+        </div>
+    </div>
+
+    <!-- Gallery Modal -->
+    <div class="gallery-modal" id="gallery-modal">
+        <button class="gallery-modal-close" onclick="closeGalleryModal()">×</button>
+        <button class="gallery-modal-nav prev" onclick="galleryPrev()">‹</button>
+        <div class="gallery-modal-content">
+            <img id="gallery-modal-image" class="gallery-modal-image" src="" alt="">
+            <div class="gallery-modal-counter" id="gallery-modal-counter"></div>
+        </div>
+        <button class="gallery-modal-nav next" onclick="galleryNext()">›</button>
+    </div>
+
+    <script>
+        // Set layout padding based on actual header height
+        (function() {
+            const header = document.querySelector('.footer-header');
+            const layout = document.querySelector('.discovery-layout');
+            const mapWrapper = document.querySelector('.map-wrapper');
+            const sidebar = document.querySelector('.location-sidebar');
+            
+            if (header && layout) {
+                const updateLayout = () => {
+                    const headerHeight = header.offsetHeight;
+                    layout.style.paddingTop = headerHeight + 'px';
+                    if (mapWrapper) {
+                        mapWrapper.style.height = `calc(100vh - ${headerHeight}px)`;
+                    }
+                    if (sidebar) {
+                        sidebar.style.height = `calc(100vh - ${headerHeight}px)`;
+                    }
+                };
+                // Run immediately and after a short delay
+                updateLayout();
+                setTimeout(updateLayout, 10);
+                // Update on resize
+                window.addEventListener('resize', updateLayout);
+            }
+        })();
+
+        // Supabase Configuration
+        // See SUPABASE_SETUP.md for setup instructions
+        const SUPABASE_URL = 'https://dhjtjdcmwullhfoowydf.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_fQLeeQ22myhK7vEEXms87w_Zu0zutSq';
+        
+        // Initialize Supabase client (only if credentials are provided)
+        // Use 'supabaseClient' to avoid conflicting with global 'supabase' from the CDN
+        let supabaseClient = null;
+        if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
+
+        // Initialize map
+        const map = L.map('iroquois-map', {
+            scrollWheelZoom: false
+        }).setView([38.16125210200293, -85.78630408253188], 14);
+
+        // Create tile layers
+        const standardLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '© OpenStreetMap contributors © CARTO',
+            subdomains: 'abcd',
+            maxZoom: 19
+        });
+
+        const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: '© Esri',
+            maxZoom: 19
+        });
+
+        // Add default layer
+        let currentLayer = standardLayer;
+        currentLayer.addTo(map);
+
+        // Map style toggle function
+        function toggleMapStyle() {
+            map.removeLayer(currentLayer);
+            
+            if (currentLayer === standardLayer) {
+                currentLayer = satelliteLayer;
+                document.getElementById('map-style-toggle-btn').innerHTML = '<span class="icon">🗺️</span> Map';
+            } else {
+                currentLayer = standardLayer;
+                document.getElementById('map-style-toggle-btn').innerHTML = '<span class="icon">🛰️</span> Satellite';
+            }
+            
+            currentLayer.addTo(map);
+        }
+
+        // Beechmont Neighborhood Boundary
+        const beechmontBoundary = [
+            [38.189340, -85.783518],
+            [38.18941839129363, -85.77529635968354],
+            [38.1899734887035, -85.76668884444875],
+            [38.190205477435164, -85.75726036444406],
+            [38.18575552295832, -85.75598187848695],
+            [38.18537326683057, -85.75812889385323],
+            [38.18076379697552, -85.75904045911692],
+            [38.18106422616485, -85.7629914411765],
+            [38.17907780211078, -85.76322959278359],
+            [38.17915276674228, -85.76470739287163],
+            [38.17874086557926, -85.76675845036272],
+            [38.17150436616104, -85.76809277273885],
+            [38.171879258516405, -85.77238480142255],
+            [38.170948358259594, -85.77540748382643],
+            [38.172061607517264, -85.77596022079548],
+            [38.172985486760055, -85.77698533233928],
+            [38.169777041309295, -85.78121456450461],
+            [38.174345946094604, -85.78245943027603],
+            [38.184171358322274, -85.78397468847373],
+            [38.18530031210882, -85.78407624344989],
+            [38.189355823978424, -85.78345130651735],
+            [38.189340, -85.783518]
+        ];
+
+        const beechmontPolygon = L.polygon(beechmontBoundary, {
+            color: '#9b59b6',
+            fillColor: 'rgba(155, 89, 182, 0.3)',
+            fillOpacity: 0.3,
+            weight: 3,
+            opacity: 0.8
+        }).addTo(map);
+
+        beechmontPolygon.on('click', function() {
+            map.fitBounds(beechmontPolygon.getBounds(), {
+                padding: [50, 50],
+                animate: true,
+                duration: 0.5
+            });
+        });
+
+        beechmontPolygon.bindPopup('<div class="custom-popup"><h4>Beechmont Neighborhood</h4></div>');
+
+        // Southside Neighborhood Boundary
+        const southsideBoundary = [
+            [38.185453677391564, -85.75814727874423],
+            [38.18572196641385, -85.75612658215651],
+            [38.171466829696705, -85.7522623629916],
+            [38.16947334119872, -85.76113757869997],
+            [38.16754834096189, -85.76104995678854],
+            [38.1666921333978, -85.76475228235122],
+            [38.15608262427058, -85.76473185173202],
+            [38.15667341961496, -85.76638577608027],
+            [38.16134021966552, -85.77229721530763],
+            [38.16327859816934, -85.76956201962615],
+            [38.178777773396895, -85.76674898683555],
+            [38.179217133822014, -85.76484733911252],
+            [38.17909488017478, -85.76329236475367],
+            [38.18120071075639, -85.76292144900175],
+            [38.18076769424131, -85.75896925783834],
+            [38.18545494240935, -85.7581631536336],
+            [38.185453677391564, -85.75814727874423]
+        ];
+
+        const southsidePolygon = L.polygon(southsideBoundary, {
+            color: '#e91e63',
+            fillColor: 'rgba(233, 30, 99, 0.3)',
+            fillOpacity: 0.3,
+            weight: 3,
+            opacity: 0.8
+        }).addTo(map);
+
+        southsidePolygon.on('click', function() {
+            map.fitBounds(southsidePolygon.getBounds(), {
+                padding: [50, 50],
+                animate: true,
+                duration: 0.5
+            });
+        });
+
+        southsidePolygon.bindPopup('<div class="custom-popup"><h4>Southside Neighborhood</h4></div>');
+
+        // Southland Park Neighborhood Boundary
+        const southlandParkBoundary = [
+            [38.171389024229576, -85.75235066452016],
+            [38.161561982370195, -85.74947963866931],
+            [38.16052174671701, -85.74948220485557],
+            [38.159475024806106, -85.74976519151099],
+            [38.158192168125346, -85.75059113948359],
+            [38.157145675385415, -85.75180813237058],
+            [38.15241612513205, -85.75831029870577],
+            [38.15813649370774, -85.76469722123288],
+            [38.16668016606569, -85.76477264984904],
+            [38.16766555093142, -85.76052175909818],
+            [38.16955794939179, -85.7611391212728],
+            [38.171389024229576, -85.75235066452016]
+        ];
+
+        const southlandParkPolygon = L.polygon(southlandParkBoundary, {
+            color: '#f39c12',
+            fillColor: 'rgba(243, 156, 18, 0.3)',
+            fillOpacity: 0.3,
+            weight: 3,
+            opacity: 0.8
+        }).addTo(map);
+
+        southlandParkPolygon.on('click', function() {
+            map.fitBounds(southlandParkPolygon.getBounds(), {
+                padding: [50, 50],
+                animate: true,
+                duration: 0.5
+            });
+        });
+
+        southlandParkPolygon.bindPopup('<div class="custom-popup"><h4>Southland Park Neighborhood</h4></div>');
+
+        // Kenwood Hills Neighborhood Boundary
+        const kenwoodHillsBoundary = [
+            [38.156224405154425, -85.7646838336868],
+            [38.15583910910894, -85.76470268120566],
+            [38.15300982525435, -85.76543600530847],
+            [38.15256957202863, -85.76563815579425],
+            [38.15111721286428, -85.76667215337594],
+            [38.15090934938325, -85.76711421273878],
+            [38.14843984247252, -85.7644963401743],
+            [38.1472976867963, -85.76693649385409],
+            [38.1479517855219, -85.77066413107455],
+            [38.14876475250805, -85.7717944742376],
+            [38.15075177150845, -85.77638436005934],
+            [38.16163396940093, -85.7791948221875],
+            [38.1613687227619, -85.77303016975716],
+            [38.161315114816155, -85.77228193068036],
+            [38.1567275174009, -85.76635508000216],
+            [38.15620605686875, -85.76469059153608],
+            [38.156224405154425, -85.7646838336868]
+        ];
+
+        const kenwoodHillsPolygon = L.polygon(kenwoodHillsBoundary, {
+            color: '#1abc9c',
+            fillColor: 'rgba(26, 188, 156, 0.3)',
+            fillOpacity: 0.3,
+            weight: 3,
+            opacity: 0.8
+        }).addTo(map);
+
+        kenwoodHillsPolygon.on('click', function() {
+            map.fitBounds(kenwoodHillsPolygon.getBounds(), {
+                padding: [50, 50],
+                animate: true,
+                duration: 0.5
+            });
+        });
+
+        kenwoodHillsPolygon.bindPopup('<div class="custom-popup"><h4>Kenwood Hills Neighborhood</h4></div>');
+
+        // Iroquois West Neighborhood Boundary
+        const iroquoisWestBoundary = [
+            [38.16983566581554, -85.78125727239807],
+            [38.17301191027642, -85.7769858620973],
+            [38.1720484644563, -85.77591047879048],
+            [38.1716620392507, -85.77568910495997],
+            [38.171091578779574, -85.77546344441049],
+            [38.17180948942067, -85.77233539889622],
+            [38.17184655776027, -85.77139133923447],
+            [38.17147098111246, -85.7680368310032],
+            [38.16351745069645, -85.7694109774818],
+            [38.16319287978414, -85.7696830591545],
+            [38.161351077618264, -85.77237653473436],
+            [38.1649961337328, -85.78005483769671],
+            [38.16983566581554, -85.78125727239807]
+        ];
+
+        const iroquoisWestPolygon = L.polygon(iroquoisWestBoundary, {
+            color: '#3498db',
+            fillColor: 'rgba(52, 152, 219, 0.3)',
+            fillOpacity: 0.3,
+            weight: 3,
+            opacity: 0.8
+        }).addTo(map);
+
+        iroquoisWestPolygon.on('click', function() {
+            map.fitBounds(iroquoisWestPolygon.getBounds(), {
+                padding: [50, 50],
+                animate: true,
+                duration: 0.5
+            });
+        });
+
+        iroquoisWestPolygon.bindPopup('<div class="custom-popup"><h4>Iroquois West Neighborhood</h4></div>');
+
+        // Location data — loaded from Supabase only (see loadLocationsFromSupabase, seed-locations.sql)
+        const locations = [];
+
+        const markers = {};
+        const locationCards = {};
+        let addMarkerMode = false;
+
+        // Generate location cards in sidebar
+        function generateLocationCards() {
+            const sidebarContent = document.getElementById('sidebar-content');
+            sidebarContent.innerHTML = '';
+            
+            locations.forEach(location => {
+                const card = document.createElement('div');
+                card.className = 'location-card';
+                card.id = `card-${location.id}`;
+                
+                // Get images array (support both old 'image' and new 'images' format)
+                const images = location.images || (location.image ? [location.image] : []);
+                const currentImageIndex = 0;
+                
+                // Build additional info HTML if it exists
+                let additionalInfo = '';
+                if (location.address || location.yearAcquired || location.hours) {
+                    additionalInfo = '<div class="location-card-info">';
+                    if (location.address) {
+                        additionalInfo += `<div class="location-card-info-item"><span class="location-card-info-label">Address:</span><span class="location-card-info-value">${location.address.replace(/\n/g, '<br>')}</span></div>`;
+                    }
+                    if (location.yearAcquired) {
+                        additionalInfo += `<div class="location-card-info-item"><span class="location-card-info-label">Year Acquired:</span><span class="location-card-info-value">${location.yearAcquired}</span></div>`;
+                    }
+                    if (location.hours) {
+                        additionalInfo += `<div class="location-card-info-item"><span class="location-card-info-label">Hours:</span><span class="location-card-info-value">${location.hours}</span></div>`;
+                    }
+                    additionalInfo += '</div>';
+                }
+                
+                // Build image gallery HTML
+                let imageGallery = '';
+                if (images.length > 0) {
+                    const imageDots = images.map((_, index) => 
+                        `<div class="location-card-image-dot ${index === 0 ? 'active' : ''}" data-index="${index}"></div>`
+                    ).join('');
+                    
+                    imageGallery = `
+                        <div class="location-card-image-container" data-location-id="${location.id}">
+                            <img src="${images[0]}" alt="${location.name}" class="location-card-image" data-index="0">
+                            ${images.length > 1 ? `
+                                <button class="location-card-image-nav prev" onclick="event.stopPropagation(); navigateCardImage('${location.id}', -1)">‹</button>
+                                <button class="location-card-image-nav next" onclick="event.stopPropagation(); navigateCardImage('${location.id}', 1)">›</button>
+                                <div class="location-card-image-indicator">${imageDots}</div>
+                            ` : ''}
+                        </div>
+                    `;
+                }
+                
+                card.innerHTML = `
+                    ${imageGallery}
+                    <div class="location-card-content">
+                        <h3>${location.name}</h3>
+                        <p>${location.description}</p>
+                        ${additionalInfo}
+                        <div class="location-card-actions">
+                            <button type="button" class="location-card-edit-btn" data-location-id="${location.id.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); editLocation(this.dataset.locationId)">Edit</button>
+                        </div>
+                    </div>
+                `;
+                
+                // Store image data for this card
+                if (images.length > 0) {
+                    card.dataset.images = JSON.stringify(images);
+                    card.dataset.currentImageIndex = '0';
+                }
+                
+                // Click handler for card (but not for image container or edit button)
+                card.querySelector('.location-card-content')?.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('location-card-edit-btn')) return;
+                    highlightCard(location.id);
+                    showLocationPopup(location);
+                });
+                
+                // Click handler for image to open modal gallery
+                if (images.length > 0) {
+                    const imageContainer = card.querySelector('.location-card-image-container');
+                    imageContainer.addEventListener('click', function(e) {
+                        if (!e.target.classList.contains('location-card-image-nav') && !e.target.classList.contains('location-card-image-dot')) {
+                            const currentIndex = parseInt(card.dataset.currentImageIndex || '0');
+                            openGalleryModal(location.id, currentIndex);
+                        }
+                    });
+                }
+                
+                sidebarContent.appendChild(card);
+                locationCards[location.id] = card;
+            });
+        }
+
+        // Navigate card images
+        function navigateCardImage(locationId, direction) {
+            const card = document.getElementById(`card-${locationId}`);
+            if (!card) return;
+            
+            const images = JSON.parse(card.dataset.images || '[]');
+            if (images.length <= 1) return;
+            
+            let currentIndex = parseInt(card.dataset.currentImageIndex || '0');
+            currentIndex += direction;
+            
+            if (currentIndex < 0) currentIndex = images.length - 1;
+            if (currentIndex >= images.length) currentIndex = 0;
+            
+            card.dataset.currentImageIndex = currentIndex.toString();
+            
+            const img = card.querySelector('.location-card-image');
+            const dots = card.querySelectorAll('.location-card-image-dot');
+            
+            img.src = images[currentIndex];
+            img.dataset.index = currentIndex;
+            
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentIndex);
+            });
+        }
+
+        // Gallery modal state
+        let galleryModalLocationId = null;
+        let galleryModalCurrentIndex = 0;
+
+        // Open gallery modal
+        function openGalleryModal(locationId, startIndex = 0) {
+            const location = locations.find(loc => loc.id === locationId);
+            if (!location) return;
+            
+            const images = location.images || (location.image ? [location.image] : []);
+            if (images.length === 0) return;
+            
+            galleryModalLocationId = locationId;
+            galleryModalCurrentIndex = startIndex;
+            
+            const modal = document.getElementById('gallery-modal');
+            const modalImage = document.getElementById('gallery-modal-image');
+            const modalCounter = document.getElementById('gallery-modal-counter');
+            const prevBtn = modal.querySelector('.gallery-modal-nav.prev');
+            const nextBtn = modal.querySelector('.gallery-modal-nav.next');
+            
+            modalImage.src = images[galleryModalCurrentIndex];
+            modalCounter.textContent = `${galleryModalCurrentIndex + 1} / ${images.length}`;
+            
+            prevBtn.disabled = images.length <= 1;
+            nextBtn.disabled = images.length <= 1;
+            
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close gallery modal
+        function closeGalleryModal() {
+            const modal = document.getElementById('gallery-modal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+            galleryModalLocationId = null;
+            galleryModalCurrentIndex = 0;
+        }
+
+        // Gallery navigation
+        function galleryPrev() {
+            if (!galleryModalLocationId) return;
+            const location = locations.find(loc => loc.id === galleryModalLocationId);
+            if (!location) return;
+            
+            const images = location.images || (location.image ? [location.image] : []);
+            galleryModalCurrentIndex = (galleryModalCurrentIndex - 1 + images.length) % images.length;
+            updateGalleryModal();
+        }
+
+        function galleryNext() {
+            if (!galleryModalLocationId) return;
+            const location = locations.find(loc => loc.id === galleryModalLocationId);
+            if (!location) return;
+            
+            const images = location.images || (location.image ? [location.image] : []);
+            galleryModalCurrentIndex = (galleryModalCurrentIndex + 1) % images.length;
+            updateGalleryModal();
+        }
+
+        function updateGalleryModal() {
+            if (!galleryModalLocationId) return;
+            const location = locations.find(loc => loc.id === galleryModalLocationId);
+            if (!location) return;
+            
+            const images = location.images || (location.image ? [location.image] : []);
+            const modalImage = document.getElementById('gallery-modal-image');
+            const modalCounter = document.getElementById('gallery-modal-counter');
+            const prevBtn = document.querySelector('.gallery-modal-nav.prev');
+            const nextBtn = document.querySelector('.gallery-modal-nav.next');
+            
+            modalImage.src = images[galleryModalCurrentIndex];
+            modalCounter.textContent = `${galleryModalCurrentIndex + 1} / ${images.length}`;
+            
+            prevBtn.disabled = images.length <= 1;
+            nextBtn.disabled = images.length <= 1;
+        }
+
+        // Keyboard navigation for gallery
+        document.addEventListener('keydown', function(e) {
+            const modal = document.getElementById('gallery-modal');
+            if (!modal.classList.contains('active')) return;
+            
+            if (e.key === 'Escape') {
+                closeGalleryModal();
+            } else if (e.key === 'ArrowLeft') {
+                galleryPrev();
+            } else if (e.key === 'ArrowRight') {
+                galleryNext();
+            }
+        });
+
+        // Make functions globally accessible
+        window.navigateCardImage = navigateCardImage;
+        window.openGalleryModal = openGalleryModal;
+        window.closeGalleryModal = closeGalleryModal;
+        window.galleryPrev = galleryPrev;
+        window.galleryNext = galleryNext;
+        window.toggleMapStyle = toggleMapStyle;
+
+        // Highlight a card and scroll to it
+        function highlightCard(locationId) {
+            // Remove active class from all cards
+            Object.values(locationCards).forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            // Add active class to selected card
+            if (locationCards[locationId]) {
+                locationCards[locationId].classList.add('active');
+                
+                // Scroll to card
+                locationCards[locationId].scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+            }
+        }
+
+        // Show popup on map for location
+        function showLocationPopup(location) {
+            const marker = markers[location.id];
+            if (marker) {
+                // Check if mobile
+                if (window.innerWidth <= 768) {
+                    showMobileBottomSheet(location);
+                } else {
+                    marker.openPopup();
+                }
+                // Pan to marker location
+                map.setView([location.lat, location.lng], map.getZoom(), {
+                    animate: true,
+                    duration: 0.5
+                });
+            }
+        }
+
+        // Show mobile bottom sheet
+        function showMobileBottomSheet(location) {
+            // Handle both object and string (from onclick)
+            if (typeof location === 'string') {
+                location = JSON.parse(location.replace(/&quot;/g, '"'));
+            }
+            
+            const sheet = document.getElementById('mobile-bottom-sheet');
+            const backdrop = document.getElementById('mobile-sheet-backdrop');
+            const title = document.getElementById('mobile-sheet-title');
+            const content = document.getElementById('mobile-sheet-content');
+            
+            title.textContent = location.name;
+            
+            // Get images array
+            const images = location.images || (location.image ? [location.image] : []);
+            
+            // Build additional info HTML if it exists
+            let additionalInfo = '';
+            if (location.address || location.yearAcquired || location.hours) {
+                additionalInfo = '<div class="location-card-info" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e0e0e0;">';
+                if (location.address) {
+                    additionalInfo += `<div class="location-card-info-item" style="margin-bottom: 0.5rem; font-size: 0.85rem;"><span style="font-weight: 600; color: #1a1a1a; display: inline-block; min-width: 100px;">Address:</span><span style="color: #666;">${location.address.replace(/\n/g, '<br>')}</span></div>`;
+                }
+                if (location.yearAcquired) {
+                    additionalInfo += `<div class="location-card-info-item" style="margin-bottom: 0.5rem; font-size: 0.85rem;"><span style="font-weight: 600; color: #1a1a1a; display: inline-block; min-width: 100px;">Year Acquired:</span><span style="color: #666;">${location.yearAcquired}</span></div>`;
+                }
+                if (location.hours) {
+                    additionalInfo += `<div class="location-card-info-item" style="margin-bottom: 0.5rem; font-size: 0.85rem;"><span style="font-weight: 600; color: #1a1a1a; display: inline-block; min-width: 100px;">Hours:</span><span style="color: #666;">${location.hours}</span></div>`;
+                }
+                additionalInfo += '</div>';
+            }
+            
+            // Build image HTML for mobile
+            let imageHtml = '';
+            if (images.length > 0) {
+                const card = document.getElementById(`card-${location.id}`);
+                const currentIndex = card ? parseInt(card.dataset.currentImageIndex || '0') : 0;
+                imageHtml = `<div style="position: relative; width: 100%; height: 200px; overflow: hidden; cursor: pointer; margin-bottom: 1rem;" onclick="openGalleryModal('${location.id}', ${currentIndex})">
+                    <img src="${images[currentIndex]}" alt="${location.name}" class="mobile-bottom-sheet-image">
+                    ${images.length > 1 ? `<div style="position: absolute; bottom: 10px; right: 10px; background: rgba(0, 0, 0, 0.6); color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">${images.length} photos</div>` : ''}
+                </div>`;
+            }
+            
+            content.innerHTML = `
+                ${imageHtml}
+                <h3>${location.name}</h3>
+                <p>${location.description}</p>
+                ${additionalInfo}
+            `;
+            
+            sheet.style.display = 'block';
+            backdrop.style.display = 'block';
+            // Trigger animation
+            setTimeout(() => {
+                sheet.classList.add('active');
+                backdrop.classList.add('active');
+            }, 10);
+            
+            // Close popup if open
+            map.closePopup();
+        }
+
+        // Close mobile bottom sheet
+        function closeMobileBottomSheet() {
+            const sheet = document.getElementById('mobile-bottom-sheet');
+            const backdrop = document.getElementById('mobile-sheet-backdrop');
+            
+            sheet.classList.remove('active');
+            backdrop.classList.remove('active');
+            
+            // Hide after animation
+            setTimeout(() => {
+                sheet.style.display = 'none';
+                backdrop.style.display = 'none';
+            }, 300);
+        }
+
+        // Make functions globally accessible
+        window.showMobileBottomSheet = showMobileBottomSheet;
+        window.closeMobileBottomSheet = closeMobileBottomSheet;
+
+
+        // Supabase functions
+        async function testSupabaseConnection() {
+            if (!supabaseClient) return { ok: false, message: 'Supabase not configured' };
+            try {
+                const { data, error } = await supabaseClient.from('locations').select('id').limit(1);
+                if (error) return { ok: false, message: error.message };
+                return { ok: true, message: 'Connected. ' + (data?.length ? `${data.length} row(s) found.` : 'Table is empty.') };
+            } catch (err) {
+                return { ok: false, message: err.message };
+            }
+        }
+
+        async function loadLocationsFromSupabase() {
+            locations.length = 0;
+
+            if (!supabaseClient) {
+                console.log('Supabase not configured. Locations load skipped.');
+                return;
+            }
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('locations')
+                    .select('*')
+                    .order('name', { ascending: true });
+
+                if (error) {
+                    console.error('Supabase load error:', error.message, error);
+                    return;
+                }
+
+                console.log('Supabase: loaded', data?.length ?? 0, 'locations');
+
+                if (data && data.length > 0) {
+                    const supabaseLocations = data.map(item => ({
+                        id: item.id,
+                        name: item.name,
+                        description: item.description || '',
+                        lat: parseFloat(item.lat),
+                        lng: parseFloat(item.lng),
+                        images: item.images || [],
+                        address: item.address || null,
+                        yearAcquired: item.year_acquired || null,
+                        hours: item.hours || null
+                    }));
+                    supabaseLocations.forEach(loc => locations.push(loc));
+                }
+            } catch (err) {
+                console.error('Error in loadLocationsFromSupabase:', err);
+            }
+        }
+
+        async function saveLocationToSupabase(location) {
+            if (!supabaseClient) {
+                console.log('Supabase not configured. Location not saved to database.');
+                return;
+            }
+
+            try {
+                const locationData = {
+                    name: location.name,
+                    description: location.description || '',
+                    lat: location.lat,
+                    lng: location.lng,
+                    images: location.images || [],
+                    address: location.address || null,
+                    year_acquired: location.yearAcquired || null,
+                    hours: location.hours || null
+                };
+
+                // Check if location exists in database by checking if ID is a UUID
+                const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(location.id);
+                
+                if (isUUID) {
+                    // Update existing location (has UUID from Supabase)
+                    const { error } = await supabaseClient
+                        .from('locations')
+                        .update(locationData)
+                        .eq('id', location.id);
+
+                    if (error) {
+                        console.error('Error updating location in Supabase:', error);
+                        return;
+                    }
+                } else {
+                    // This is a new location, insert it
+                    const { data, error } = await supabaseClient
+                        .from('locations')
+                        .insert([locationData])
+                        .select()
+                        .single();
+
+                    if (error) {
+                        console.error('Error saving location to Supabase:', error);
+                        return;
+                    }
+
+                    // Update the location ID with the one from Supabase
+                    const oldId = location.id;
+                    const locationIndex = locations.findIndex(loc => loc.id === oldId);
+                    if (locationIndex !== -1) {
+                        locations[locationIndex].id = data.id;
+                        location.id = data.id;
+                        
+                        // Update marker reference
+                        if (markers[oldId]) {
+                            markers[data.id] = markers[oldId];
+                            delete markers[oldId];
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error('Error in saveLocationToSupabase:', err);
+            }
+        }
+
+        async function deleteLocationFromSupabase(locationId) {
+            if (!supabaseClient) {
+                console.log('Supabase not configured. Location not deleted from database.');
+                return;
+            }
+
+            try {
+                const { error } = await supabaseClient
+                    .from('locations')
+                    .delete()
+                    .eq('id', locationId);
+
+                if (error) {
+                    console.error('Error deleting location from Supabase:', error);
+                }
+            } catch (err) {
+                console.error('Error in deleteLocationFromSupabase:', err);
+            }
+        }
+
+        function createMarkerForLocation(location) {
+            const marker = L.marker([location.lat, location.lng]).addTo(map);
+            marker.on('click', function() {
+                map.setView([location.lat, location.lng], map.getZoom(), {
+                    animate: true,
+                    duration: 0.5
+                });
+                highlightCard(location.id);
+            });
+
+            let popupHtml = `
+                <div style="font-family: 'Inter', sans-serif;">
+                    <strong>${location.name}</strong><br>
+                    <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: #666;">${location.description || ''}</p>
+            `;
+            if (location.address || location.yearAcquired || location.hours) {
+                popupHtml += '<div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid #e0e0e0; font-size: 0.85rem;">';
+                if (location.address) popupHtml += `<div style="margin-bottom: 0.25rem;"><span style="font-weight: 600;">Address:</span> ${location.address.replace(/\n/g, '<br>')}</div>`;
+                if (location.yearAcquired) popupHtml += `<div style="margin-bottom: 0.25rem;"><span style="font-weight: 600;">Year Acquired:</span> ${location.yearAcquired}</div>`;
+                if (location.hours) popupHtml += `<div><span style="font-weight: 600;">Hours:</span> ${location.hours}</div>`;
+                popupHtml += '</div>';
+            }
+            popupHtml += '</div>';
+            marker.bindPopup(popupHtml);
+
+            marker.on('popupopen', function() {
+                if (window.innerWidth <= 768) {
+                    showMobileBottomSheet(location);
+                }
+            });
+
+            markers[location.id] = marker;
+        }
+
+        // Load locations from Supabase on page load
+        async function initializeLocations() {
+            await loadLocationsFromSupabase();
+            
+            // Create markers for all locations
+            locations.forEach(location => {
+                createMarkerForLocation(location);
+            });
+
+            // Generate cards
+            generateLocationCards();
+        }
+
+        // Generate cards on page load
+        (async function() {
+            await initializeLocations();
+            const t = await testSupabaseConnection();
+            console.log('Supabase:', t.ok ? t.message : 'Connection failed: ' + t.message);
+        })();
+
+        function closeSidebar() {
+            document.getElementById('location-sidebar').classList.remove('active');
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('location-sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        function toggleLocationForm(mode, location) {
+            const panel = document.getElementById('location-form-panel');
+            const title = document.getElementById('location-form-title');
+            const form = document.getElementById('location-form');
+            const idInput = document.getElementById('location-form-id');
+            const nameInput = document.getElementById('location-form-name');
+            const descInput = document.getElementById('location-form-description');
+            const addrInput = document.getElementById('location-form-address');
+            const latInput = document.getElementById('location-form-lat');
+            const lngInput = document.getElementById('location-form-lng');
+            const submitBtn = document.getElementById('location-form-submit');
+            const errEl = document.getElementById('location-form-error');
+            errEl.classList.add('hidden');
+            errEl.textContent = '';
+
+            if (mode === 'add') {
+                panel.classList.remove('hidden');
+                title.textContent = 'Add Location';
+                submitBtn.textContent = 'Save';
+                idInput.value = '';
+                form.reset();
+                idInput.value = '';
+                nameInput.focus();
+            } else if (mode === 'edit' && location) {
+                panel.classList.remove('hidden');
+                title.textContent = 'Edit Location';
+                submitBtn.textContent = 'Update';
+                idInput.value = location.id;
+                nameInput.value = location.name || '';
+                descInput.value = location.description || '';
+                addrInput.value = location.address || '';
+                latInput.value = location.lat ?? '';
+                lngInput.value = location.lng ?? '';
+                nameInput.focus();
+            }
+        }
+
+        function cancelLocationForm() {
+            const panel = document.getElementById('location-form-panel');
+            panel.classList.add('hidden');
+            document.getElementById('location-form').reset();
+            document.getElementById('location-form-id').value = '';
+            const errEl = document.getElementById('location-form-error');
+            errEl.classList.add('hidden');
+            errEl.textContent = '';
+        }
+
+        async function geocodeAddress(address) {
+            const q = encodeURIComponent(address.trim());
+            const url = `https://nominatim.openstreetmap.org/search?q=${q}&format=json&limit=1`;
+            const res = await fetch(url, {
+                headers: { 'Accept': 'application/json', 'User-Agent': 'IroquoisParkApp/1.0 (https://personal-website)' }
+            });
+            if (!res.ok) return null;
+            const data = await res.json();
+            if (!data || data.length === 0) return null;
+            return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+        }
+
+        function setFormError(msg) {
+            const errEl = document.getElementById('location-form-error');
+            errEl.textContent = msg || '';
+            errEl.classList.toggle('hidden', !msg);
+        }
+
+        function editLocation(locationId) {
+            const location = locations.find(loc => loc.id === locationId);
+            if (!location) return;
+            toggleLocationForm('edit', location);
+        }
+
+        async function handleLocationSubmit(e) {
+            e.preventDefault();
+            setFormError('');
+
+            const idInput = document.getElementById('location-form-id');
+            const nameInput = document.getElementById('location-form-name');
+            const descInput = document.getElementById('location-form-description');
+            const addrInput = document.getElementById('location-form-address');
+            const latInput = document.getElementById('location-form-lat');
+            const lngInput = document.getElementById('location-form-lng');
+            const submitBtn = document.getElementById('location-form-submit');
+
+            const name = nameInput.value.trim();
+            const description = descInput.value.trim() || '';
+            const address = addrInput.value.trim();
+            let lat = parseFloat(latInput.value);
+            let lng = parseFloat(lngInput.value);
+
+            if (!name) {
+                setFormError('Name is required.');
+                return;
+            }
+
+            if (address) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Looking up address…';
+                let coords = null;
+                try {
+                    coords = await geocodeAddress(address);
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = idInput.value ? 'Update' : 'Save';
+                }
+                if (!coords) {
+                    setFormError('Could not find that address. Try a different one or enter coordinates.');
+                    return;
+                }
+                lat = coords.lat;
+                lng = coords.lng;
+            } else if (isNaN(lat) || isNaN(lng)) {
+                setFormError('Enter a street address or both latitude and longitude.');
+                return;
+            }
+
+            const existingId = idInput.value.trim();
+            const isEdit = !!existingId;
+
+            if (isEdit) {
+                const location = locations.find(loc => loc.id === existingId);
+                if (!location) return;
+                location.name = name;
+                location.description = description;
+                location.lat = lat;
+                location.lng = lng;
+                location.address = address || location.address || null;
+
+                if (markers[existingId]) {
+                    map.removeLayer(markers[existingId]);
+                    delete markers[existingId];
+                }
+                await saveLocationToSupabase(location);
+                createMarkerForLocation(location);
+                generateLocationCards();
+                cancelLocationForm();
+                map.setView([lat, lng], map.getZoom(), { animate: true, duration: 0.5 });
+                showLocationPopup(location);
+            } else {
+                const newId = 'location-' + Date.now();
+                const newLocation = {
+                    id: newId,
+                    name,
+                    description,
+                    lat,
+                    lng,
+                    address: address || null,
+                    images: ['https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop']
+                };
+                locations.push(newLocation);
+                createMarkerForLocation(newLocation);
+                await saveLocationToSupabase(newLocation);
+                generateLocationCards();
+                cancelLocationForm();
+                map.setView([lat, lng], map.getZoom(), { animate: true, duration: 0.5 });
+                showLocationPopup(locations.find(loc => loc.id === newLocation.id) || newLocation);
+            }
+        }
+
+        // Add marker functionality
+        function enableAddMarker() {
+            addMarkerMode = !addMarkerMode;
+            const btn = document.getElementById('add-marker-btn');
+            
+            if (addMarkerMode) {
+                btn.textContent = 'Click map to add (click again to cancel)';
+                btn.classList.add('active');
+                map.on('click', addMarkerOnClick);
+            } else {
+                btn.textContent = 'Add Marker';
+                btn.classList.remove('active');
+                map.off('click', addMarkerOnClick);
+            }
+        }
+
+        function addMarkerOnClick(e) {
+            const lat = e.latlng.lat;
+            const lng = e.latlng.lng;
+            
+            const name = prompt('Enter location name:');
+            if (!name) {
+                enableAddMarker();
+                return;
+            }
+            
+            const description = prompt('Enter location description:') || 'No description provided.';
+            
+            const newId = 'location-' + Date.now();
+            const newLocation = {
+                id: newId,
+                name: name,
+                lat: lat,
+                lng: lng,
+                description: description,
+                images: ['https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop'] // Default park image
+            };
+            
+            locations.push(newLocation);
+            
+            const marker = L.marker([lat, lng]).addTo(map);
+            marker.on('click', function() {
+                // Pan to marker location
+                map.setView([lat, lng], map.getZoom(), {
+                    animate: true,
+                    duration: 0.5
+                });
+                // Scroll to card in sidebar
+                highlightCard(newId);
+            });
+            
+            const popupContent = `
+                <div style="font-family: 'Inter', sans-serif;">
+                    <strong>${name}</strong><br>
+                    <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: #666;">${description}</p>
+                </div>
+            `;
+            
+            marker.bindPopup(popupContent);
+            
+            // Trigger bottom sheet when popup opens on mobile
+            marker.on('popupopen', function() {
+                if (window.innerWidth <= 768) {
+                    showMobileBottomSheet(newLocation);
+                }
+            });
+            
+            markers[newId] = marker;
+            
+            // Add card to sidebar
+            const sidebarContent = document.getElementById('sidebar-content');
+            const card = document.createElement('div');
+            card.className = 'location-card';
+            card.id = `card-${newId}`;
+            
+            const images = newLocation.images || [];
+            let imageGallery = '';
+            if (images.length > 0) {
+                imageGallery = `
+                    <div class="location-card-image-container" data-location-id="${newId}">
+                        <img src="${images[0]}" alt="${name}" class="location-card-image" data-index="0">
+                    </div>
+                `;
+            }
+            
+            card.innerHTML = `
+                ${imageGallery}
+                <div class="location-card-content">
+                    <h3>${name}</h3>
+                    <p>${description}</p>
+                </div>
+            `;
+            
+            if (images.length > 0) {
+                card.dataset.images = JSON.stringify(images);
+                card.dataset.currentImageIndex = '0';
+                
+                const imageContainer = card.querySelector('.location-card-image-container');
+                if (imageContainer) {
+                    imageContainer.addEventListener('click', function() {
+                        openGalleryModal(newId, 0);
+                    });
+                }
+            }
+            
+            card.querySelector('.location-card-content')?.addEventListener('click', function() {
+                highlightCard(newId);
+                showLocationPopup(newLocation);
+            });
+            
+            sidebarContent.appendChild(card);
+            locationCards[newId] = card;
+            
+            enableAddMarker();
+            
+            // Save to Supabase
+            saveLocationToSupabase(newLocation).then(() => {
+                // Regenerate cards to reflect any ID changes from Supabase
+                generateLocationCards();
+            });
+            
+            // On mobile, show bottom sheet; on desktop, scroll to card
+            if (window.innerWidth <= 768) {
+                showMobileBottomSheet(newLocation);
+            } else {
+                highlightCard(newId);
+                showLocationPopup(newLocation);
+            }
+            
+            console.log('New location:', newLocation);
+        }
+    </script>
+</body>
+</html>
