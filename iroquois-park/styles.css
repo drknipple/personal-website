@@ -11,10 +11,38 @@ body {
     height: 100%;
 }
 
+:root {
+    /* Design System: Overlook Vista */
+    --color-deep-forest: #2C4A3E;
+    --color-horizon-blue: #5B8FA3;
+    --color-sunset-clay: #C86B58;
+    --color-morning-mist: #B8C5C1;
+    --color-sky-cream: #E9E4D9;
+    --font-display: 'Righteous', sans-serif;
+    --font-body: 'Open Sans', sans-serif;
+    --font-size-h1: 64px;
+    --font-size-h2: 48px;
+    --font-size-h3: 36px;
+    --font-size-h4: 24px;
+    --font-size-body: 16px;
+    --font-size-body-large: 18px;
+    --line-height-tight: 1.1;
+    --line-height-normal: 1.2;
+    --line-height-relaxed: 1.3;
+    --line-height-body: 1.6;
+}
+
 body {
-    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    color: #111827;
-    background: #f3f4f6;
+    font-family: var(--font-body);
+    color: var(--color-deep-forest);
+    background: var(--color-sky-cream);
+    font-size: var(--font-size-body);
+    line-height: var(--line-height-body);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    color: var(--color-deep-forest);
 }
 
 a {
@@ -35,18 +63,20 @@ a {
     gap: 0.5rem;
     align-items: center;
     padding: 0.5rem 1rem;
-    background: #d7e8ec;
-    color: rgb(3, 3, 66);
+    background: var(--color-deep-forest);
+    color: var(--color-sky-cream);
     font-size: 0.9rem;
+    font-family: var(--font-body);
 }
 
 .footer-header a {
     font-weight: 600;
     text-decoration: underline;
+    color: var(--color-sky-cream);
 }
 
 .footer-header:hover {
-    background: #ccecf2;
+    background: var(--color-horizon-blue);
 }
 
 /* App layout */
@@ -116,7 +146,7 @@ a {
     top: 10px;
     right: 10px;
     z-index: 700;
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.98);
     border-radius: 12px;
     box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
     overflow: hidden;
@@ -171,7 +201,7 @@ a {
     justify-content: center;
     font-size: 1.1rem;
     cursor: pointer;
-    background: #ffffff;
+    background: var(--color-sky-cream);
     color: #111827;
     box-shadow: 0 6px 18px rgba(15, 23, 42, 0.2);
     z-index: 700;
@@ -180,7 +210,7 @@ a {
 
 .map-style-toggle:hover,
 .add-location-map-btn:hover {
-    background: #f3f4f6;
+    background: var(--color-sky-cream);
     transform: translateY(-1px);
     box-shadow: 0 10px 25px rgba(15, 23, 42, 0.22);
 }
@@ -274,7 +304,7 @@ a {
     padding: 0.4rem 0.75rem;
     border-radius: 8px;
     border: 1px solid #d1d5db;
-    background: #2892cf;
+    background: var(--color-horizon-blue);
     color: #ffffff;
     font-size: 0.85rem;
     font-weight: 500;
@@ -283,7 +313,7 @@ a {
 }
 
 .popup-location__more-btn:hover {
-    background: #1873aa;
+    background: var(--color-deep-forest);
 }
 
 /* List view */
@@ -294,7 +324,7 @@ a {
     height: 100%;
     display: flex;
     flex-direction: column;
-    background: #f3f4f6;
+    background: var(--color-sky-cream);
     overflow: visible; /* Allow header to be fully visible */
     min-height: 0; /* Allow flex shrinking */
 }
@@ -306,13 +336,14 @@ a {
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    background: #ffffff;
+    background: var(--color-sky-cream);
 }
 
 .list-view__title {
     margin: 0;
     font-size: 1.1rem;
     font-weight: 600;
+    font-family: var(--font-display);
 }
 
 .list-view__subtitle {
@@ -327,14 +358,14 @@ a {
     padding: 0.45rem 1rem;
     font-size: 0.85rem;
     font-weight: 500;
-    background: #2892cf;
+    background: var(--color-horizon-blue);
     color: #ffffff;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    box-shadow: 0 4px 12px rgba(91, 143, 163, 0.3);
 }
 
 .list-view__add-btn:hover {
-    background: #1873aa;
+    background: var(--color-deep-forest);
 }
 
 .location-list {
@@ -364,10 +395,10 @@ a {
 .location-card {
     display: flex;
     flex-direction: column;
-    background: #ffffff;
+    background: var(--color-sky-cream);
     border-radius: 16px;
     overflow: visible;
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.07);
+    box-shadow: 0 10px 30px rgba(44, 74, 62, 0.1);
     cursor: pointer;
     transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
     height: 100%; /* Fill grid cell height */
@@ -376,12 +407,12 @@ a {
 
 .location-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+    box-shadow: 0 16px 40px rgba(44, 74, 62, 0.15);
 }
 
 .location-card--active {
-    box-shadow: 0 18px 45px rgba(46, 144, 240, 0.3);
-    border: 1px solid rgba(37, 99, 235, 0.35);
+    box-shadow: 0 18px 45px rgba(91, 143, 163, 0.3);
+    border: 1px solid var(--color-horizon-blue);
 }
 
 .location-card__image-container {
@@ -432,6 +463,7 @@ a {
     margin: 0;
     font-size: 1rem;
     font-weight: 600;
+    font-family: var(--font-display);
 }
 
 .location-card__description {
@@ -484,14 +516,14 @@ a {
 }
 
 .location-card__view-map-btn {
-    background: #2892cf;
+    background: var(--color-horizon-blue);
     color: #ffffff;
-    border-color: #2892cf;
+    border-color: var(--color-horizon-blue);
 }
 
 .location-card__view-map-btn:hover {
-    background: #1873aa;
-    border-color: #1873aa;
+    background: var(--color-deep-forest);
+    border-color: var(--color-deep-forest);
 }
 
 /* Detail sheet / bottom sheet */
@@ -529,7 +561,7 @@ a {
     transform: translate(-50%, -50%);
     width: min(480px, 90vw);
     max-height: 80vh;
-    background: #ffffff;
+    background: var(--color-sky-cream);
     border-radius: 20px;
     box-shadow: 0 24px 60px rgba(15, 23, 42, 0.4);
     display: flex;
@@ -760,7 +792,7 @@ a {
 }
 
 .location-form__save {
-    background: #2892cf;
+    background: var(--color-horizon-blue);
     color: #ffffff;
 }
 
@@ -839,7 +871,7 @@ a {
 }
 
 .location-form__file-label:hover {
-    background: #f3f4f6;
+    background: var(--color-sky-cream);
     border-color: #9ca3af;
 }
 
@@ -850,7 +882,7 @@ a {
     }
 
     .location-form__file-label {
-        font-size: 1rem;
+        font-size: 1.15rem;
         padding: 0.6rem 1.2rem;
     }
 }
@@ -943,7 +975,7 @@ a {
     bottom: 0;
     height: 64px;
     display: flex;
-    background: #ffffff;
+    background: var(--color-sky-cream);
     border-top: 1px solid #e5e7eb;
     z-index: 1100;
 }
@@ -955,94 +987,98 @@ a {
 
     /* Increase font sizes on mobile for better readability */
     .footer-header {
-        font-size: 1.1rem;
+        font-size: 1.25rem;
     }
 
     .list-view__title {
-        font-size: 1.4rem;
+        font-size: 1.55rem;
     }
 
     .list-view__subtitle {
-        font-size: 1.05rem;
-    }
-
-    .list-view__add-btn {
-        font-size: 1.05rem;
-    }
-
-    .location-card__title {
         font-size: 1.2rem;
     }
 
+    .list-view__add-btn {
+        font-size: 1.2rem;
+    }
+
+    .location-card__title {
+        font-size: 1.35rem;
+    }
+
     .location-card__description {
-        font-size: 1.05rem;
+        font-size: 1.2rem;
     }
 
     .location-card__meta {
-        font-size: 0.95rem;
+        font-size: 1.1rem;
     }
 
     .location-card__edit-btn,
     .location-card__view-map-btn {
-        font-size: 1rem;
+        font-size: 1.15rem;
     }
 
     .detail-sheet__title {
-        font-size: 1.25rem;
+        font-size: 1.4rem;
     }
 
     .detail-text__description {
-        font-size: 1.1rem;
+        font-size: 1.25rem;
     }
 
     .detail-text__meta {
-        font-size: 1rem;
+        font-size: 1.15rem;
     }
 
     .detail-text__edit-btn {
-        font-size: 1rem;
+        font-size: 1.15rem;
     }
 
     .location-form__label {
-        font-size: 1rem;
+        font-size: 1.1rem;
     }
 
     .location-form__input,
     .location-form__textarea {
-        font-size: 1.05rem;
+        font-size: 1.2rem;
     }
 
     .location-form__hint {
-        font-size: 0.95rem;
+        font-size: 1.1rem;
     }
 
     .location-form__error {
-        font-size: 1rem;
+        font-size: 1.15rem;
     }
 
     .location-form__save,
     .location-form__cancel {
-        font-size: 1rem;
+        font-size: 1.15rem;
+    }
+
+    .location-form__file-label {
+        font-size: 1.15rem;
     }
 
     .popup-location {
-        font-size: 1.05rem;
+        font-size: 1.2rem;
     }
 
     .popup-location__more-btn {
-        font-size: 1.05rem;
+        font-size: 1.2rem;
     }
 
     .neighborhood-legend__toggle {
-        font-size: 1rem;
+        font-size: 1.15rem;
     }
 
     .neighborhood-legend__item {
-        font-size: 1rem;
+        font-size: 1.15rem;
     }
 
     .bottom-nav__btn {
-        font-size: 1.1rem;
+        font-size: 1.25rem;
     }
 }
 
@@ -1057,7 +1093,7 @@ a {
 }
 
 .bottom-nav__btn--active {
-    background: #2892cf;
+    background: var(--color-horizon-blue);
     color: #ffffff;
 }
 
