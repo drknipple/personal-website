@@ -1,8 +1,8 @@
-# Deploys the full site (main site + shelter-finder app) to gh-pages.
+# Deploys the full site (main site + shelter-finder app + echo app) to gh-pages.
 # REQUIRED: In GitHub repo Settings → Pages, set "Deploy from a branch" and
-# choose branch "gh-pages" / (root). Otherwise the shelter-finder app will 404.
+# choose branch "gh-pages" / (root). Otherwise the apps will 404.
 
-name: Deploy Site (including Resource Finder)
+name: Deploy Site (including Resource Finder and Echo)
 
 on:
   push:
@@ -10,6 +10,7 @@ on:
       - main
     paths:
       - 'shelter-finder/**'
+      - 'echo/**'
       - 'wip/**'
       - 'iroquois-park/**'
       - 'index.html'
@@ -50,7 +51,7 @@ jobs:
 
       - name: Prepare deploy directory
         run: |
-          mkdir -p deploy deploy/shelter-finder
+          mkdir -p deploy deploy/shelter-finder deploy/echo
           cp index.html deploy/ 2>/dev/null || true
           cp index2.html deploy/ 2>/dev/null || true
           cp main.js deploy/ 2>/dev/null || true
@@ -60,6 +61,9 @@ jobs:
           cp -r pizza deploy/ 2>/dev/null || true
           cp -r wip deploy/ 2>/dev/null || true
           cp -r iroquois-park deploy/ 2>/dev/null || true
+          cp -r echo/* deploy/echo/ 2>/dev/null || true
+          # Exclude .env file from deployment
+          rm -f deploy/echo/.env 2>/dev/null || true
           cp -r shelter-finder/dist/* deploy/shelter-finder/
           touch deploy/.nojekyll
 

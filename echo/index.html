@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Echos - Location-anchored memories">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- App styles -->
+    <link rel="stylesheet" href="./styles.css">
+
+    <title>Echos</title>
+</head>
+<body>
+    <!-- Header -->
+    <header class="app-header">
+        <h1 class="app-header__title">Echos</h1>
+        <div class="app-header__actions">
+            <!-- Notification bell -->
+            <div class="notification-bell-wrapper">
+                <button id="notification-bell" class="notification-bell" type="button" aria-label="Notifications">
+                    🔔
+                </button>
+                <div id="bell-badge" class="notification-bell__badge" hidden>!</div>
+                <!-- Tooltip -->
+                <div id="bell-tooltip" class="notification-bell__tooltip" hidden>
+                    <div class="notification-bell__tooltip-arrow"></div>
+                    <div class="notification-bell__tooltip-content">
+                        <span id="bell-tooltip-text"></span>
+                        <button id="bell-tooltip-close" class="notification-bell__tooltip-close" type="button" aria-label="Close tooltip">×</button>
+                    </div>
+                </div>
+                <!-- Ready videos dropdown -->
+                <div id="bell-dropdown" class="notification-bell__dropdown" hidden>
+                    <div class="notification-bell__dropdown-header">
+                        <span>Live Echo Complete</span>
+                        <button id="bell-dropdown-close" class="notification-bell__dropdown-close" type="button" aria-label="Close">×</button>
+                    </div>
+                    <div id="bell-dropdown-list" class="notification-bell__dropdown-list">
+                        <!-- Ready videos will be listed here -->
+                    </div>
+                </div>
+            </div>
+            <button id="new-echo-btn" class="app-header__new-btn" type="button" aria-label="Create new Echo">
+                + New Echo
+            </button>
+        </div>
+    </header>
+
+    <!-- Main app container -->
+    <main class="app-container">
+        <!-- Map view -->
+        <div id="map" class="map-container"></div>
+
+        <!-- Upload form overlay -->
+        <div id="upload-form-overlay" class="upload-form-overlay" aria-modal="true" role="dialog" hidden>
+            <div class="upload-form-overlay__backdrop"></div>
+            <div class="upload-form-overlay__panel">
+                <header class="upload-form-overlay__header">
+                    <h2>Create New Echo</h2>
+                    <button id="close-form-btn" class="upload-form-overlay__close" type="button" aria-label="Close form">
+                        ×
+                    </button>
+                </header>
+                <form id="echo-form" class="echo-form">
+                    <!-- Event / Occasion -->
+                    <div class="form-group">
+                        <label for="event-input" class="form-label">Event / Occasion</label>
+                        <input 
+                            type="text" 
+                            id="event-input" 
+                            name="event" 
+                            class="form-input" 
+                            placeholder="e.g., Halloween, Family Reunion, Birthday Party..."
+                            required>
+                        <small class="form-help">Multiple photos from the same event will be grouped together</small>
+                    </div>
+
+                    <!-- Year -->
+                    <div class="form-group">
+                        <label for="year-input" class="form-label">Year</label>
+                        <input 
+                            type="number" 
+                            id="year-input" 
+                            name="year" 
+                            class="form-input" 
+                            min="1800" 
+                            max="2026" 
+                            placeholder="e.g., 1978"
+                            required>
+                    </div>
+
+                    <!-- Location -->
+                    <div class="form-group">
+                        <label for="location-input" class="form-label">Location</label>
+                        <div class="location-input-group">
+                            <input 
+                                type="text" 
+                                id="location-input" 
+                                name="location" 
+                                class="form-input" 
+                                placeholder="Search for an address or place..."
+                                required>
+                            <button type="button" id="pick-location-btn" class="btn btn--secondary btn--small">
+                                📍 Pick on Map
+                            </button>
+                        </div>
+                        <small class="form-help">Type an address or click the button to pick a location on the map</small>
+                    </div>
+
+                    <!-- Photo upload -->
+                    <div class="form-group">
+                        <label for="photo-input" class="form-label">Photos (up to 10)</label>
+                        <div class="photo-upload-area" id="photo-upload-area">
+                            <input type="file" id="photo-input" name="photo" accept="image/jpeg,image/jpg,image/png,image/webp" multiple required>
+                            <div class="photo-upload-area__preview" id="photo-preview">
+                                <span class="photo-upload-area__placeholder">Click or drag photos here (up to 10)</span>
+                            </div>
+                        </div>
+                        <small class="form-help" id="photo-count-help">Select 1-10 photos</small>
+                    </div>
+
+                    <!-- Caption mode -->
+                    <div class="form-group">
+                        <label class="form-label">Caption Mode</label>
+                        <div class="caption-mode-selector">
+                            <label class="radio-label">
+                                <input type="radio" name="caption-mode" value="shared" checked>
+                                <span>One caption for all photos</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="caption-mode" value="individual">
+                                <span>Individual captions for each photo</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Shared Narration (shown when shared mode) -->
+                    <div class="form-group" id="shared-narration-group">
+                        <label for="narration-input" class="form-label">Story / Narration</label>
+                        <textarea 
+                            id="narration-input" 
+                            name="narration" 
+                            class="form-textarea" 
+                            rows="4" 
+                            placeholder="Tell the story behind these photos..."
+                            required></textarea>
+                    </div>
+
+                    <!-- Individual captions container (shown when individual mode) -->
+                    <div class="form-group" id="individual-captions-group" hidden>
+                        <label class="form-label">Individual Captions</label>
+                        <div id="individual-captions-container">
+                            <!-- Individual caption inputs will be added here dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Submit button -->
+                    <div class="form-actions">
+                        <button type="button" id="cancel-form-btn" class="btn btn--secondary">Cancel</button>
+                        <button type="submit" id="submit-form-btn" class="btn btn--primary">
+                            Create Echo
+                        </button>
+                    </div>
+
+                    <!-- Loading state -->
+                    <div id="form-loading" class="form-loading" hidden>
+                        <div class="form-loading__spinner"></div>
+                        <p class="form-loading__message">Creating your Echo...</p>
+                        <p class="form-loading__submessage">Uploading photo and saving location</p>
+                    </div>
+
+                    <!-- Error message -->
+                    <div id="form-error" class="form-error" hidden></div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Echo detail modal -->
+        <div id="echo-modal" class="echo-modal" aria-modal="true" role="dialog" hidden>
+            <div class="echo-modal__backdrop"></div>
+            <div class="echo-modal__panel">
+                <button id="close-echo-btn" class="echo-modal__close" type="button" aria-label="Close">
+                    ×
+                </button>
+                <div class="echo-modal__content">
+                    <!-- Header with event, year, and location -->
+                    <div class="echo-modal__header">
+                        <div class="echo-modal__header-info">
+                            <h2 id="echo-event" class="echo-modal__event"></h2>
+                            <p id="echo-year" class="echo-modal__year"></p>
+                            <p id="echo-location" class="echo-modal__location-small"></p>
+                        </div>
+                    </div>
+                    <!-- Main media (full size photo/video) with navigation -->
+                    <div class="echo-modal__media-wrapper">
+                        <button id="echo-nav-prev" class="echo-modal__nav echo-modal__nav--prev" hidden>‹</button>
+                        <div id="echo-media" class="echo-modal__media"></div>
+                        <button id="echo-nav-next" class="echo-modal__nav echo-modal__nav--next" hidden>›</button>
+                    </div>
+                    <div class="echo-modal__info">
+                        <p id="echo-narration" class="echo-modal__narration"></p>
+                        <div class="echo-modal__actions">
+                            <div class="echo-modal__actions-row">
+                                <button id="bring-to-life-btn" class="btn btn--primary" type="button" hidden>
+                                    ✨ Bring to Life
+                                </button>
+                                <button id="edit-echo-btn" class="btn btn--secondary" type="button" hidden>
+                                    Edit
+                                </button>
+                                <button id="delete-echo-btn" class="btn btn--danger" type="button" hidden>
+                                    Delete Echo
+                                </button>
+                            </div>
+                            <div id="generating-status" class="generating-status" hidden>
+                                <span class="generating-status__icon">✨</span>
+                                <span class="generating-status__text">Bringing this Echo to life... We'll notify you when it's ready!</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification toast -->
+        <div id="notification" class="notification" hidden>
+            <span id="notification-text" class="notification__text"></span>
+        </div>
+
+        <!-- Delete confirmation modal -->
+        <div id="delete-confirm-modal" class="delete-confirm-modal" aria-modal="true" role="dialog" hidden>
+            <div class="delete-confirm-modal__backdrop"></div>
+            <div class="delete-confirm-modal__panel">
+                <h3 class="delete-confirm-modal__title">Delete Echo?</h3>
+                <p class="delete-confirm-modal__message">Are you sure you want to delete this Echo? This cannot be undone.</p>
+                <div class="delete-confirm-modal__actions">
+                    <button id="delete-cancel-btn" class="btn btn--secondary" type="button">Cancel</button>
+                    <button id="delete-confirm-btn" class="btn btn--danger" type="button">Delete</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Leaflet & Supabase scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Verify Supabase loaded
+        window.addEventListener('load', () => {
+            if (typeof window.supabase === 'undefined') {
+                console.error('[init] Supabase library failed to load!');
+            } else {
+                console.log('[init] Supabase library loaded successfully');
+            }
+        });
+    </script>
+
+    <!-- App entry point -->
+    <script type="module" src="./app.js"></script>
+</body>
+</html>

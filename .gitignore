@@ -9,3 +9,6 @@ vite/
 # Root package files – deploy uses only shelter-finder; keep locally if needed
 package.json
 package-lock.json
+
+# Environment variables (never commit API keys)
+echo/.env
