@@ -633,20 +633,20 @@ a {
 
 .detail-sheet__title {
     margin: 0;
-    font-size: 1rem;
+    font-size: 2rem;
     font-weight: 600;
 }
 
 .detail-sheet__close {
     border: none;
     background: transparent;
-    font-size: 1.25rem;
+    font-size: 2.25rem;
     cursor: pointer;
     color: #6b7280;
 }
 
 .detail-sheet__body {
-    padding: 0.75rem 1rem 1rem;
+    padding: 0rem 1rem 1rem;
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
@@ -1020,7 +1020,7 @@ a {
     }
 
     .detail-sheet__title {
-        font-size: 1.4rem;
+        font-size: 1.7rem;
     }
 
     .detail-text__description {
