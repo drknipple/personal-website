@@ -11,6 +11,7 @@ on:
     paths:
       - 'shelter-finder/**'
       - 'shelter-sfproject/**'
+      - 'luci/**'
       - 'echo/**'
       - 'wip/**'
       - 'iroquois-park/**'
@@ -60,9 +61,19 @@ jobs:
         env:
           NODE_ENV: production
 
+      - name: Install luci dependencies
+        working-directory: ./luci
+        run: npm ci
+
+      - name: Build luci
+        working-directory: ./luci
+        run: npm run build
+        env:
+          NODE_ENV: production
+
       - name: Prepare deploy directory
         run: |
-          mkdir -p deploy deploy/shelter-finder deploy/shelter-sfproject deploy/echo
+          mkdir -p deploy deploy/shelter-finder deploy/shelter-sfproject deploy/luci deploy/echo
           cp index.html deploy/ 2>/dev/null || true
           cp index2.html deploy/ 2>/dev/null || true
           cp main.js deploy/ 2>/dev/null || true
@@ -77,6 +88,7 @@ jobs:
           rm -f deploy/echo/.env 2>/dev/null || true
           cp -r shelter-finder/dist/* deploy/shelter-finder/
           cp -r shelter-sfproject/dist/* deploy/shelter-sfproject/
+          cp -r luci/dist/* deploy/luci/
           touch deploy/.nojekyll
 
       - name: Deploy to GitHub Pages

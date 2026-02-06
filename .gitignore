@@ -8,9 +8,11 @@ vite/
 # Root package files – deploy uses only shelter-finder; keep locally if needed
 package.json
 package-lock.json
-# shelter-sfproject needs its own package files for CI build
+# shelter-sfproject and luci need their own package files for CI build
 !shelter-sfproject/package.json
 !shelter-sfproject/package-lock.json
+!luci/package.json
+!luci/package-lock.json
 
 # Environment variables (never commit API keys)
 echo/.env
