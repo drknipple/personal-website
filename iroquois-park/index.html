@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Iroquois Park Neighborhood Explorer – Louisville, Kentucky">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Righteous&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- Favicon -->
+    <link rel="icon" href="../images/bee.png" type="image/png">
+
+    <!-- App styles -->
+    <link rel="stylesheet" href="./styles.css">
+
+    <title>Iroquois Park Neighborhood Explorer v2</title>
+</head>
+<body>
+    <!-- Fixed footer-style header (matches existing site tone) -->
+    <header class="footer-header">
+        <span>A Neighborhood Love ♥ Letter</span>
+        <a href="../index.html">By Eric</a>
+    </header>
+
+    <!-- App root: map & list views live between header and bottom nav -->
+    <main class="app-root">
+        <!-- Map view -->
+        <section id="view-map" class="view view--map is-active" aria-label="Map view">
+            <div id="map-root" class="map-root">
+                <div id="map" class="map" aria-label="Iroquois Park map"></div>
+
+                <!-- Neighborhood legend (built/controlled by mapView.js) -->
+                <div id="neighborhood-legend" class="neighborhood-legend neighborhood-legend--collapsed">
+                    <button class="neighborhood-legend__toggle" type="button">
+                        <span class="neighborhood-legend__title">Neighborhoods</span>
+                        <span class="neighborhood-legend__chevron">▸</span>
+                    </button>
+                    <div class="neighborhood-legend__items"></div>
+                </div>
+
+                <!-- Satellite / standard map style toggle -->
+                <button id="map-style-toggle"
+                        class="map-style-toggle"
+                        type="button"
+                        aria-label="Toggle satellite view">
+                    👁
+                </button>
+
+                <!-- Add-location button (map view) -->
+                <button id="add-location-map-btn"
+                        class="add-location-map-btn"
+                        type="button"
+                        aria-label="Add location">
+                    +
+                </button>
+
+            </div>
+        </section>
+
+        <!-- List view -->
+        <section id="view-list" class="view view--list" aria-label="List view">
+            <div class="list-view">
+                <header class="list-view__header">
+                    <div>
+                        <h2 class="list-view__title">Locations</h2>
+                        <p class="list-view__subtitle">Browse all places around Iroquois Park.</p>
+                    </div>
+                    <button id="add-location-list-btn"
+                            class="list-view__add-btn"
+                            type="button">
+                        Add Location
+                    </button>
+                </header>
+
+                <div id="list-container" class="location-list" aria-live="polite">
+                    <!-- Cards rendered by listView.js -->
+                </div>
+            </div>
+        </section>
+        <!-- Location detail sheet / overlay (content managed by detailView.js) -->
+        <div id="detail-sheet" class="detail-sheet" aria-live="polite" aria-modal="true" role="dialog">
+            <div class="detail-sheet__backdrop"></div>
+            <div class="detail-sheet__panel">
+                <header class="detail-sheet__header">
+                    <h2 id="detail-sheet-title" class="detail-sheet__title"></h2>
+                    <button id="detail-sheet-close"
+                            class="detail-sheet__close"
+                            type="button"
+                            aria-label="Close details">
+                        ×
+                    </button>
+                </header>
+                <div id="detail-sheet-body" class="detail-sheet__body">
+                    <!-- Filled dynamically -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Gallery modal for full-screen photo viewing -->
+    <div id="gallery-modal" class="gallery-modal" aria-modal="true" role="dialog">
+        <div class="gallery-modal__backdrop"></div>
+        <div class="gallery-modal__panel">
+            <button id="gallery-modal-close"
+                    class="gallery-modal__close"
+                    type="button"
+                    aria-label="Close gallery">
+                ×
+            </button>
+            <div class="gallery-modal__image-wrapper">
+                <img id="gallery-modal-image" class="gallery-modal__image" alt="">
+                <div id="gallery-modal-counter" class="gallery-modal__counter"></div>
+            </div>
+            <div class="gallery-modal__controls">
+                <button id="gallery-prev"
+                        class="gallery-modal__nav gallery-modal__nav--prev"
+                        type="button"
+                        aria-label="Previous photo">
+                    ‹
+                </button>
+                <button id="gallery-next"
+                        class="gallery-modal__nav gallery-modal__nav--next"
+                        type="button"
+                        aria-label="Next photo">
+                    ›
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Map/List navigation -->
+    <nav class="bottom-nav" aria-label="Map and list view toggle">
+        <button id="nav-map-btn"
+                class="bottom-nav__btn bottom-nav__btn--active"
+                type="button">
+            Map
+        </button>
+        <button id="nav-list-btn"
+                class="bottom-nav__btn"
+                type="button">
+            List
+        </button>
+    </nav>
+
+    <!-- Leaflet & Supabase scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- App entry point -->
+    <script type="module" src="./app.js"></script>
+</body>
+</html>
+
