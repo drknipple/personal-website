@@ -10,6 +10,7 @@ on:
       - main
     paths:
       - 'shelter-finder/**'
+      - 'shelter-sfproject/**'
       - 'echo/**'
       - 'wip/**'
       - 'iroquois-park/**'
@@ -49,9 +50,19 @@ jobs:
         env:
           NODE_ENV: production
 
+      - name: Install shelter-sfproject dependencies
+        working-directory: ./shelter-sfproject
+        run: npm ci
+
+      - name: Build shelter-sfproject
+        working-directory: ./shelter-sfproject
+        run: npm run build
+        env:
+          NODE_ENV: production
+
       - name: Prepare deploy directory
         run: |
-          mkdir -p deploy deploy/shelter-finder deploy/echo
+          mkdir -p deploy deploy/shelter-finder deploy/shelter-sfproject deploy/echo
           cp index.html deploy/ 2>/dev/null || true
           cp index2.html deploy/ 2>/dev/null || true
           cp main.js deploy/ 2>/dev/null || true
@@ -65,6 +76,7 @@ jobs:
           # Exclude .env file from deployment
           rm -f deploy/echo/.env 2>/dev/null || true
           cp -r shelter-finder/dist/* deploy/shelter-finder/
+          cp -r shelter-sfproject/dist/* deploy/shelter-sfproject/
           touch deploy/.nojekyll
 
       - name: Deploy to GitHub Pages

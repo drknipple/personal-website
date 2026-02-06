@@ -3,12 +3,14 @@ node_modules/
 
 # Private / unnecessary for public site
 my-favorite-places-learning/
-shelter-sfproject/
 vite/
 
 # Root package files – deploy uses only shelter-finder; keep locally if needed
 package.json
 package-lock.json
+# shelter-sfproject needs its own package files for CI build
+!shelter-sfproject/package.json
+!shelter-sfproject/package-lock.json
 
 # Environment variables (never commit API keys)
 echo/.env
